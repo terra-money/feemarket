@@ -82,7 +82,7 @@ func (s *NetworkTestSuite) TestGetState() {
 		{
 			name: "should return default state",
 			args: common,
-			obj:  types.DefaultState(),
+			obj:  types.DefaultState()[0],
 		},
 	} {
 		s.T().Run(tc.name, func(t *testing.T) {
@@ -95,9 +95,9 @@ func (s *NetworkTestSuite) TestGetState() {
 			} else {
 				require.NoError(t, err)
 				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.State))
-				require.NotNil(t, resp.State)
-				require.Equal(t, tc.obj, resp.State)
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.States[0]))
+				require.NotNil(t, resp.States[0])
+				require.Equal(t, tc.obj, resp.States[0])
 			}
 		})
 	}
@@ -121,7 +121,7 @@ func (s *NetworkTestSuite) TestSpamTx() {
 		{
 			name: "should return default state",
 			args: common,
-			obj:  types.DefaultState(),
+			obj:  types.DefaultState()[0],
 		},
 	} {
 		// TODO SPAM TX
@@ -136,9 +136,9 @@ func (s *NetworkTestSuite) TestSpamTx() {
 			} else {
 				require.NoError(t, err)
 				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.State))
-				require.NotNil(t, resp.State)
-				require.Equal(t, tc.obj, resp.State)
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.States[0]))
+				require.NotNil(t, resp.States[0])
+				require.Equal(t, tc.obj, resp.States[0])
 			}
 		})
 	}

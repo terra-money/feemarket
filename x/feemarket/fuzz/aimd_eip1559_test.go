@@ -19,7 +19,7 @@ import (
 // the multiplicative decrease parameter.
 func TestAIMDLearningRate(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultAIMDState()
+		state := types.DefaultAIMDState()[0]
 		window := rapid.Int64Range(1, 50).Draw(t, "window")
 		state.Window = make([]uint64, window)
 
@@ -65,7 +65,7 @@ func TestAIMDLearningRate(t *testing.T) {
 // default EIP-1559 base fee adjustment algorithm.
 func TestAIMDBaseFee(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultAIMDState()
+		state := types.DefaultAIMDState()[0]
 		window := rapid.Int64Range(1, 50).Draw(t, "window")
 		state.Window = make([]uint64, window)
 
@@ -90,7 +90,7 @@ func TestAIMDBaseFee(t *testing.T) {
 			state.UpdateBaseFee(params)
 
 			// Ensure that the minimum base fee is always less than the base fee.
-			require.True(t, params.MinBaseFee.LTE(state.BaseFee))
+			require.True(t, state.MinBaseFee.LTE(state.BaseFee))
 
 			switch {
 			case blockUtilization > params.TargetBlockUtilization:

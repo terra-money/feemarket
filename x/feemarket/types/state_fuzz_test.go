@@ -28,10 +28,10 @@ func FuzzDefaultFeeMarket(f *testing.F) {
 
 	// Default fee market.
 	f.Fuzz(func(t *testing.T, blockGasUsed uint64) {
-		state := types.DefaultState()
+		state := types.DefaultState()[0]
 		params := types.DefaultParams()
 
-		params.MinBaseFee = math.NewIntFromUint64(100)
+		state.MinBaseFee = math.NewIntFromUint64(100)
 		state.BaseFee = math.NewIntFromUint64(200)
 		err := state.Update(blockGasUsed, params)
 
@@ -77,9 +77,9 @@ func FuzzAIMDFeeMarket(f *testing.F) {
 
 	// Fee market with adjustable learning rate.
 	f.Fuzz(func(t *testing.T, blockGasUsed uint64) {
-		state := types.DefaultAIMDState()
+		state := types.DefaultAIMDState()[0]
 		params := types.DefaultAIMDParams()
-		params.MinBaseFee = math.NewIntFromUint64(100)
+		state.MinBaseFee = math.NewIntFromUint64(100)
 		state.BaseFee = math.NewIntFromUint64(200)
 		state.Window = make([]uint64, 1)
 		err := state.Update(blockGasUsed, params)

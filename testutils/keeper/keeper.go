@@ -53,9 +53,11 @@ func NewTestSetup(t testing.TB, options ...testkeeper.SetupOption) (sdk.Context,
 		Height: testkeeper.ExampleHeight,
 	}, false, log.NewNopLogger())
 
-	err := feeMarketKeeper.SetState(ctx, feemarkettypes.DefaultState())
-	require.NoError(t, err)
-	err = feeMarketKeeper.SetParams(ctx, feemarkettypes.DefaultParams())
+	for _, state := range feemarkettypes.DefaultState() {
+		err := feeMarketKeeper.SetState(ctx, state)
+		require.NoError(t, err)
+	}
+	err := feeMarketKeeper.SetParams(ctx, feemarkettypes.DefaultParams())
 	require.NoError(t, err)
 
 	testKeepers := TestKeepers{

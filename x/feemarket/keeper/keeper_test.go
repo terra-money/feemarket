@@ -51,24 +51,24 @@ func (s *KeeperTestSuite) SetupTest() {
 
 func (s *KeeperTestSuite) TestState() {
 	s.Run("set and get default eip1559 state", func() {
-		state := types.DefaultState()
+		state := types.DefaultState()[0]
 
 		err := s.feeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.feeMarketKeeper.GetState(s.ctx)
+		gotState, err := s.feeMarketKeeper.GetState(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
 
 		s.Require().EqualValues(state, gotState)
 	})
 
 	s.Run("set and get aimd eip1559 state", func() {
-		state := types.DefaultAIMDState()
+		state := types.DefaultAIMDState()[0]
 
 		err := s.feeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.feeMarketKeeper.GetState(s.ctx)
+		gotState, err := s.feeMarketKeeper.GetState(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
 
 		s.Require().Equal(state, gotState)
@@ -94,7 +94,6 @@ func (s *KeeperTestSuite) TestParams() {
 			Beta:                   math.LegacyMustNewDecFromStr("0.1"),
 			Theta:                  math.LegacyMustNewDecFromStr("0.1"),
 			Delta:                  math.LegacyMustNewDecFromStr("0.1"),
-			MinBaseFee:             math.NewInt(10),
 			MinLearningRate:        math.LegacyMustNewDecFromStr("0.1"),
 			MaxLearningRate:        math.LegacyMustNewDecFromStr("0.1"),
 			TargetBlockUtilization: 5,

@@ -14,7 +14,7 @@ import (
 // constant for the default EIP-1559 implementation.
 func TestLearningRate(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultState()
+		state := types.DefaultState()[0]
 		params := CreateRandomParams(t)
 
 		// Randomly generate alpha and beta.
@@ -39,7 +39,7 @@ func TestLearningRate(t *testing.T) {
 // direction for the default EIP-1559 implementation.
 func TestBaseFee(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultState()
+		state := types.DefaultState()[0]
 		params := CreateRandomParams(t)
 
 		// Update the current base fee to be 10% higher than the minimum base fee.
@@ -60,7 +60,7 @@ func TestBaseFee(t *testing.T) {
 		state.UpdateBaseFee(params)
 
 		// Ensure that the minimum base fee is always less than the base fee.
-		require.True(t, params.MinBaseFee.LTE(state.BaseFee))
+		require.True(t, state.MinBaseFee.LTE(state.BaseFee))
 
 		switch {
 		case blockUtilization > params.TargetBlockUtilization:

@@ -40,30 +40,31 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		s.Require().Error(err)
 	})
 
-	s.Run("resets state after new params request", func() {
-		params, err := s.feeMarketKeeper.GetParams(s.ctx)
-		s.Require().NoError(err)
+	// TODO: fix test, Param no longer update state
+	// s.Run("resets state after new params request", func() {
+	// 	params, err := s.feeMarketKeeper.GetParams(s.ctx)
+	// 	s.Require().NoError(err)
 
-		state, err := s.feeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+	// 	state, err := s.feeMarketKeeper.GetState(s.ctx)
+	// 	s.Require().NoError(err)
 
-		err = state.Update(params.MaxBlockUtilization, params)
-		s.Require().NoError(err)
+	// 	err = state.Update(params.MaxBlockUtilization, params)
+	// 	s.Require().NoError(err)
 
-		err = s.feeMarketKeeper.SetState(s.ctx, state)
-		s.Require().NoError(err)
+	// 	err = s.feeMarketKeeper.SetState(s.ctx, state)
+	// 	s.Require().NoError(err)
 
-		params.Window = 100
-		req := &types.MsgParams{
-			Authority: s.authorityAccount.String(),
-			Params:    params,
-		}
-		_, err = s.msgServer.Params(s.ctx, req)
-		s.Require().NoError(err)
+	// 	params.Window = 100
+	// 	req := &types.MsgParams{
+	// 		Authority: s.authorityAccount.String(),
+	// 		Params:    params,
+	// 	}
+	// 	_, err = s.msgServer.Params(s.ctx, req)
+	// 	s.Require().NoError(err)
 
-		state, err = s.feeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
-		s.Require().Equal(params.Window, uint64(len(state.Window)))
-		s.Require().Equal(state.Window[0], uint64(0))
-	})
+	// 	state, err = s.feeMarketKeeper.GetState(s.ctx)
+	// 	s.Require().NoError(err)
+	// 	s.Require().Equal(params.Window, uint64(len(state.Window)))
+	// 	s.Require().Equal(state.Window[0], uint64(0))
+	// })
 }

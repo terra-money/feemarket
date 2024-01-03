@@ -81,18 +81,20 @@ func DefaultAIMDParams() Params {
 // implementation. This implementation uses a sliding window to track the
 // block utilization and dynamically adjusts the learning rate based on the
 // utilization within the window.
-func DefaultAIMDState() State {
-	return NewState(
-		DefaultAIMDFeeDenom,
-		DefaultAIMDWindow,
-		DefaultAIMDMinBaseFee,
-		DefaultAIMDMinBaseFee,
-		DefaultAIMDMinLearningRate,
-	)
+func DefaultAIMDState() []State {
+	return []State{
+		NewState(
+			DefaultAIMDFeeDenom,
+			DefaultAIMDWindow,
+			DefaultAIMDMinBaseFee,
+			DefaultAIMDMinBaseFee,
+			DefaultAIMDMinLearningRate,
+		),
+	}
 }
 
 // DefaultAIMDGenesisState returns a default genesis state that implements
 // the AIMD EIP-1559 fee market implementation.
 func DefaultAIMDGenesisState() *GenesisState {
-	return NewGenesisState(DefaultAIMDParams(), []State{DefaultAIMDState()})
+	return NewGenesisState(DefaultAIMDParams(), DefaultAIMDState())
 }
