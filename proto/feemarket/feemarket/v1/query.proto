@@ -41,13 +41,17 @@ message ParamsRequest {}
 message ParamsResponse { Params params = 1 [ (gogoproto.nullable) = false ]; }
 
 // StateRequest is the request type for the Query/State RPC method.
-message StateRequest {}
+message StateRequest {
+  string feeDenom = 1;
+}
 
 // StateResponse is the response type for the Query/State RPC method.
-message StateResponse { State state = 1 [ (gogoproto.nullable) = false ]; }
+message StateResponse { repeated State states = 1 [ (gogoproto.nullable) = false ]; }
 
 // BaseFeeRequest is the request type for the Query/BaseFee RPC method.
-message BaseFeeRequest {}
+message BaseFeeRequest {
+  string feeDenom = 1;
+}
 
 // StateResponse is the response type for the Query/BaseFee RPC method.
 message BaseFeeResponse {
