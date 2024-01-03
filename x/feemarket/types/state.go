@@ -11,13 +11,17 @@ import (
 // AIMD EIP-1559 fee market implementation. Note that on init, you initialize
 // both the minimum and current base fee to the same value.
 func NewState(
+	feeDenom string,
 	windowSize uint64,
+	minBaseFee,
 	baseFee math.Int,
 	learningRate math.LegacyDec,
 ) State {
 	return State{
+		FeeDenom:     feeDenom,
 		Window:       make([]uint64, windowSize),
 		BaseFee:      baseFee,
+		MinBaseFee:   minBaseFee,
 		Index:        0,
 		LearningRate: learningRate,
 	}
@@ -50,7 +54,7 @@ func (s *State) UpdateBaseFee(params Params) (fee math.Int) {
 	// Panic catch in case there is an overflow
 	defer func() {
 		if rec := recover(); rec != nil {
-			s.BaseFee = params.MinBaseFee
+			s.BaseFee = s.MinBaseFee
 			fee = s.BaseFee
 		}
 	}()
@@ -73,8 +77,8 @@ func (s *State) UpdateBaseFee(params Params) (fee math.Int) {
 	fee = (math.LegacyNewDecFromInt(s.BaseFee).Mul(learningRateAdjustment)).Add(net).TruncateInt()
 
 	// Ensure the base fee is greater than the minimum base fee.
-	if fee.LT(params.MinBaseFee) {
-		fee = params.MinBaseFee
+	if fee.LT(s.MinBaseFee) {
+		fee = s.MinBaseFee
 	}
 
 	s.BaseFee = fee

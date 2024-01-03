@@ -12,15 +12,15 @@ const (
 
 const (
 	prefixParams = iota + 1
-	prefixState
+	prefixState  = iota + 2
 )
 
 var (
 	// KeyParams is the store key for the feemarket module's parameters.
 	KeyParams = []byte{prefixParams}
 
-	// KeyState is the store key for the feemarket module's data.
-	KeyState = []byte{prefixState}
+	// KeyPrefixState is the prefix of store key for the feemarket module's data.
+	KeyPrefixState = []byte{prefixState}
 
 	EventTypeFeePay      = "fee_pay"
 	EventTypeTipPay      = "tip_pay"
@@ -28,3 +28,9 @@ var (
 	AttributeKeyTipPayer = "tip_payer"
 	AttributeKeyTipPayee = "tip_payee"
 )
+
+// GetKeyPrefixState returns the KVStore key prefix for storing
+// registered feeshare contract for a withdrawer
+func GetKeyPrefixState(feeDenom string) []byte {
+	return append(KeyPrefixState, feeDenom...)
+}

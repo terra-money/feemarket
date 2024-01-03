@@ -62,22 +62,24 @@ func DefaultParams() Params {
 		DefaultDelta,
 		DefaultTargetBlockUtilization,
 		DefaultMaxBlockUtilization,
-		DefaultMinBaseFee,
 		DefaultMinLearningRate,
 		DefaultMaxLearningRate,
-		DefaultFeeDenom,
 		true,
 	)
 }
 
 // DefaultState returns the default state for the EIP-1559 fee market
 // implementation without the AIMD learning rate adjustment algorithm.
-func DefaultState() State {
-	return NewState(
-		DefaultWindow,
-		DefaultMinBaseFee,
-		DefaultMinLearningRate,
-	)
+func DefaultState() []State {
+	return []State{
+		NewState(
+			DefaultFeeDenom,
+			DefaultWindow,
+			DefaultMinBaseFee,
+			DefaultMinBaseFee,
+			DefaultMinLearningRate,
+		),
+	}
 }
 
 // DefaultGenesisState returns a default genesis state that implements

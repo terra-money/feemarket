@@ -61,9 +61,9 @@ func GetParamsCmd() *cobra.Command {
 // GetStateCmd returns the cli-command that queries the current feemarket state.
 func GetStateCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "state",
+		Use:   "state [fee_denom]",
 		Short: "Query for the current feemarket state",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -71,12 +71,14 @@ func GetStateCmd() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			resp, err := queryClient.State(cmd.Context(), &types.StateRequest{})
+			resp, err := queryClient.State(cmd.Context(), &types.StateRequest{
+				FeeDenom: args[0],
+			})
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(&resp.State)
+			return clientCtx.PrintProto(resp)
 		},
 	}
 
@@ -88,9 +90,9 @@ func GetStateCmd() *cobra.Command {
 // GetBaseFeeCmd returns the cli-command that queries the current feemarket base fee.
 func GetBaseFeeCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "base-fee",
+		Use:   "base-fee [fee_denom]]",
 		Short: "Query for the current feemarket base fee",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -98,7 +100,9 @@ func GetBaseFeeCmd() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			resp, err := queryClient.BaseFee(cmd.Context(), &types.BaseFeeRequest{})
+			resp, err := queryClient.BaseFee(cmd.Context(), &types.BaseFeeRequest{
+				FeeDenom: args[0],
+			})
 			if err != nil {
 				return err
 			}

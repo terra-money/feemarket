@@ -71,10 +71,8 @@ func DefaultAIMDParams() Params {
 		DefaultAIMDDelta,
 		DefaultAIMDTargetBlockSize,
 		DefaultAIMDMaxBlockSize,
-		DefaultAIMDMinBaseFee,
 		DefaultAIMDMinLearningRate,
 		DefaultAIMDMaxLearningRate,
-		DefaultAIMDFeeDenom,
 		true,
 	)
 }
@@ -85,7 +83,9 @@ func DefaultAIMDParams() Params {
 // utilization within the window.
 func DefaultAIMDState() State {
 	return NewState(
+		DefaultAIMDFeeDenom,
 		DefaultAIMDWindow,
+		DefaultAIMDMinBaseFee,
 		DefaultAIMDMinBaseFee,
 		DefaultAIMDMinLearningRate,
 	)
@@ -94,5 +94,5 @@ func DefaultAIMDState() State {
 // DefaultAIMDGenesisState returns a default genesis state that implements
 // the AIMD EIP-1559 fee market implementation.
 func DefaultAIMDGenesisState() *GenesisState {
-	return NewGenesisState(DefaultAIMDParams(), DefaultAIMDState())
+	return NewGenesisState(DefaultAIMDParams(), []State{DefaultAIMDState()})
 }

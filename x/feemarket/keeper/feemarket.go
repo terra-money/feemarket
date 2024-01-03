@@ -20,37 +20,44 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 		return nil
 	}
 
-	state, err := k.GetState(ctx)
+	states, err := k.GetStates(ctx)
 	if err != nil {
 		return err
 	}
 
-	// Update the learning rate based on the block utilization seen in the
-	// current block. This is the AIMD learning rate adjustment algorithm.
-	newLR := state.UpdateLearningRate(
-		params,
-	)
+	for _, state := range states {
 
-	// Update the base fee based with the new learning rate and delta adjustment.
-	newBaseFee := state.UpdateBaseFee(params)
+		// Update the learning rate based on the block utilization seen in the
+		// current block. This is the AIMD learning rate adjustment algorithm.
+		newLR := state.UpdateLearningRate(
+			params,
+		)
 
-	k.Logger(ctx).Info(
-		"updated the fee market",
-		"height", ctx.BlockHeight(),
-		"new_base_fee", newBaseFee,
-		"new_learning_rate", newLR,
-		"average_block_utilization", state.GetAverageUtilization(params),
-		"net_block_utilization", state.GetNetUtilization(params),
-	)
+		// Update the base fee based with the new learning rate and delta adjustment.
+		newBaseFee := state.UpdateBaseFee(params)
 
-	// Increment the height of the state and set the new state.
-	state.IncrementHeight()
-	return k.SetState(ctx, state)
+		k.Logger(ctx).Info(
+			"updated the fee market",
+			"height", ctx.BlockHeight(),
+			"denom", state.FeeDenom,
+			"new_base_fee", newBaseFee,
+			"new_learning_rate", newLR,
+			"average_block_utilization", state.GetAverageUtilization(params),
+			"net_block_utilization", state.GetNetUtilization(params),
+		)
+
+		// Increment the height of the state and set the new state.
+		state.IncrementHeight()
+		if err := k.SetState(ctx, state); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetBaseFee returns the base fee from the fee market state.
-func (k *Keeper) GetBaseFee(ctx sdk.Context) (math.Int, error) {
-	state, err := k.GetState(ctx)
+func (k *Keeper) GetBaseFee(ctx sdk.Context, feeDenom string) (math.Int, error) {
+	state, err := k.GetState(ctx, feeDenom)
 	if err != nil {
 		return math.Int{}, err
 	}
@@ -59,8 +66,8 @@ func (k *Keeper) GetBaseFee(ctx sdk.Context) (math.Int, error) {
 }
 
 // GetLearningRate returns the learning rate from the fee market state.
-func (k *Keeper) GetLearningRate(ctx sdk.Context) (math.LegacyDec, error) {
-	state, err := k.GetState(ctx)
+func (k *Keeper) GetLearningRate(ctx sdk.Context, feeDenom string) (math.LegacyDec, error) {
+	state, err := k.GetState(ctx, feeDenom)
 	if err != nil {
 		return math.LegacyDec{}, err
 	}
@@ -69,18 +76,13 @@ func (k *Keeper) GetLearningRate(ctx sdk.Context) (math.LegacyDec, error) {
 }
 
 // GetMinGasPrices returns the mininum gas prices as sdk.Coins from the fee market state.
-func (k *Keeper) GetMinGasPrices(ctx sdk.Context) (sdk.Coins, error) {
-	baseFee, err := k.GetBaseFee(ctx)
+func (k *Keeper) GetMinGasPrices(ctx sdk.Context, feeDenom string) (sdk.Coins, error) {
+	baseFee, err := k.GetBaseFee(ctx, feeDenom)
 	if err != nil {
 		return sdk.NewCoins(), err
 	}
 
-	params, err := k.GetParams(ctx)
-	if err != nil {
-		return sdk.NewCoins(), err
-	}
-
-	fee := sdk.NewCoin(params.FeeDenom, baseFee)
+	fee := sdk.NewCoin(feeDenom, baseFee)
 	minGasPrices := sdk.NewCoins(fee)
 
 	return minGasPrices, nil

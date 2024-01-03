@@ -21,10 +21,8 @@ func NewParams(
 	delta math.LegacyDec,
 	targetBlockSize uint64,
 	maxBlockSize uint64,
-	minBaseFee math.Int,
 	minLearingRate math.LegacyDec,
 	maxLearningRate math.LegacyDec,
-	feeDenom string,
 	enabled bool,
 ) Params {
 	return Params{
@@ -32,13 +30,11 @@ func NewParams(
 		Beta:                   beta,
 		Theta:                  theta,
 		Delta:                  delta,
-		MinBaseFee:             minBaseFee,
 		MinLearningRate:        minLearingRate,
 		MaxLearningRate:        maxLearningRate,
 		TargetBlockUtilization: targetBlockSize,
 		MaxBlockUtilization:    maxBlockSize,
 		Window:                 window,
-		FeeDenom:               feeDenom,
 		Enabled:                enabled,
 	}
 }
@@ -77,10 +73,6 @@ func (p *Params) ValidateBasic() error {
 		return fmt.Errorf("max block size cannot be greater than target block size times %d", MaxBlockUtilizationRatio)
 	}
 
-	if p.MinBaseFee.IsNil() || !p.MinBaseFee.GTE(math.ZeroInt()) {
-		return fmt.Errorf("min base fee cannot be nil and must be greater than or equal to zero")
-	}
-
 	if p.MaxLearningRate.IsNil() || p.MinLearningRate.IsNegative() {
 		return fmt.Errorf("min learning rate cannot be negative or nil")
 	}
@@ -91,10 +83,6 @@ func (p *Params) ValidateBasic() error {
 
 	if p.MinLearningRate.GT(p.MaxLearningRate) {
 		return fmt.Errorf("min learning rate cannot be greater than max learning rate")
-	}
-
-	if p.FeeDenom == "" {
-		return fmt.Errorf("fee denom must be set")
 	}
 
 	return nil

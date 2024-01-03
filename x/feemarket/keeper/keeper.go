@@ -53,10 +53,10 @@ func (k *Keeper) GetAuthority() string {
 }
 
 // GetState returns the feemarket module's state.
-func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
+func (k *Keeper) GetState(ctx sdk.Context, feeDenom string) (types.State, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	key := types.KeyState
+	key := types.GetKeyPrefixState(feeDenom)
 	bz := store.Get(key)
 
 	state := types.State{}
@@ -65,6 +65,32 @@ func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
 	}
 
 	return state, nil
+}
+
+// GetStateIter returns an iterator for all feemarket module's states.
+func (k *Keeper) GetStateIter(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
+
+	return sdk.KVStorePrefixIterator(store, types.KeyPrefixState)
+}
+
+// GetStates returns all feemarket module's states.
+func (k *Keeper) GetStates(ctx sdk.Context) ([]types.State, error) {
+	iter := k.GetStateIter(ctx)
+	defer iter.Close()
+
+	var states []types.State
+
+	for ; iter.Valid(); iter.Next() {
+		state := types.State{}
+		if err := state.Unmarshal(iter.Value()); err != nil {
+			return nil, err
+		}
+
+		states = append(states, state)
+	}
+
+	return states, nil
 }
 
 // SetState sets the feemarket module's state.
@@ -76,7 +102,7 @@ func (k *Keeper) SetState(ctx sdk.Context, state types.State) error {
 		return err
 	}
 
-	store.Set(types.KeyState, bz)
+	store.Set(types.GetKeyPrefixState(state.FeeDenom), bz)
 
 	return nil
 }
