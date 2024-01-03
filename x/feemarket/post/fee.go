@@ -164,20 +164,21 @@ func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.T
 		))
 	}
 
-	proposer := sdk.AccAddress(ctx.BlockHeader().ProposerAddress)
-	if !tip.IsZero() {
-		err := SendTip(dfd.bankKeeper, ctx, deductFeesFromAcc.GetAddress(), proposer, tip)
-		if err != nil {
-			return err
-		}
+	// removed code for sending tip to proposer
+	// proposer := sdk.AccAddress(ctx.BlockHeader().ProposerAddress)
+	// if !tip.IsZero() {
+	// 	err := SendTip(dfd.bankKeeper, ctx, deductFeesFromAcc.GetAddress(), deductFeesFromAcc.GetAddress(), tip)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		events = append(events, sdk.NewEvent(
-			feemarkettypes.EventTypeTipPay,
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTip, tip.String()),
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayer, deductFeesFrom.String()),
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayee, proposer.String()),
-		))
-	}
+	// 	events = append(events, sdk.NewEvent(
+	// 		feemarkettypes.EventTypeTipPay,
+	// 		sdk.NewAttribute(feemarkettypes.AttributeKeyTip, tip.String()),
+	// 		sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayer, deductFeesFrom.String()),
+	// 		sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayee, proposer.String()),
+	// 	))
+	// }
 
 	ctx.EventManager().EmitEvents(events)
 	return nil
