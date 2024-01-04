@@ -41,6 +41,10 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, sdkerrors.ErrInvalidGasLimit.Wrapf("must provide positive gas")
 	}
 
+	if feeTx.GetFee().Len() != 1 {
+		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
+	}
+
 	minGasPrices, err := dfd.feemarketKeeper.GetMinGasPrices(ctx, feeTx.GetFee().GetDenomByIndex(0))
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")

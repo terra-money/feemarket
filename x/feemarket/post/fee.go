@@ -66,6 +66,10 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		return next(ctx, tx, simulate, success)
 	}
 
+	if feeTx.GetFee().Len() != 1 {
+		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
+	}
+
 	// update fee market state
 	state, err := dfd.feemarketKeeper.GetState(ctx, feeTx.GetFee().GetDenomByIndex(0))
 	if err != nil {
