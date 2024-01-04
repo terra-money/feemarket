@@ -56,6 +56,9 @@ var (
 
 	// DefaultAIMDFeeDenom is the Cosmos SDK default bond denom.
 	DefaultAIMDFeeDenom = DefaultFeeDenom
+
+	// TestFeeDenom is the other fee denom for testing purpose.
+	AIMDTestFeeDenom = TestFeeDenom
 )
 
 // DefaultAIMDParams returns a default set of parameters that implements
@@ -83,6 +86,13 @@ func DefaultAIMDParams() Params {
 // utilization within the window.
 func DefaultAIMDState() []State {
 	return []State{
+		NewState(
+			AIMDTestFeeDenom,
+			DefaultAIMDWindow,
+			DefaultAIMDMinBaseFee,
+			DefaultAIMDMinBaseFee,
+			DefaultAIMDMinLearningRate,
+		),
 		NewState(
 			DefaultAIMDFeeDenom,
 			DefaultAIMDWindow,

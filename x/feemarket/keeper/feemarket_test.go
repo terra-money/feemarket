@@ -9,7 +9,7 @@ import (
 
 func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	s.Run("empty block with default eip1559 with min base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 		s.setGenesisState(params, state)
 
@@ -25,7 +25,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("empty block with default eip1559 with preset base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
 		params := types.DefaultParams()
 		s.setGenesisState(params, state)
@@ -48,7 +48,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	s.Run("empty block default eip1559 with preset base fee that should default to min", func() {
 		// Set the base fee to just below the expected threshold decrease of 1/8th. This means it
 		// should default to the minimum base fee.
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		factor := math.LegacyMustNewDecFromStr("0.125")
 		increase := state.BaseFee.ToLegacyDec().Mul(factor).TruncateInt()
 		state.BaseFee = types.DefaultMinBaseFee.Add(increase).Sub(math.NewInt(1))
@@ -69,7 +69,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("target block with default eip1559 at min base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 
 		// Reaching the target block size means that we expect this to not
@@ -92,7 +92,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("target block with default eip1559 at preset base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
@@ -116,7 +116,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("max block with default eip1559 at min base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 
 		// Reaching the target block size means that we expect this to not
@@ -142,7 +142,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("max block with default eip1559 at preset base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
@@ -169,7 +169,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("in-between min and target block with default eip1559 at min base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 		params.MaxBlockUtilization = 100
 		params.TargetBlockUtilization = 50
@@ -192,7 +192,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("in-between min and target block with default eip1559 at preset base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
 
 		params := types.DefaultParams()
@@ -220,7 +220,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("in-between target and max block with default eip1559 at min base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		params := types.DefaultParams()
 		params.MaxBlockUtilization = 100
 		params.TargetBlockUtilization = 50
@@ -246,7 +246,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("in-between target and max block with default eip1559 at preset base fee", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()[1]
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
 		params := types.DefaultParams()
 		params.MaxBlockUtilization = 100
@@ -273,7 +273,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("empty blocks with aimd eip1559 with min base fee", func() {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()[1]
 		params := types.DefaultAIMDParams()
 		s.setGenesisState(params, state)
 
@@ -290,7 +290,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("empty blocks with aimd eip1559 with preset base fee", func() {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()[1]
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
 		params := types.DefaultAIMDParams()
 		s.setGenesisState(params, state)
@@ -314,7 +314,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	s.Run("empty blocks aimd eip1559 with preset base fee that should default to min", func() {
 		params := types.DefaultAIMDParams()
 
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()[1]
 		lr := math.LegacyMustNewDecFromStr("0.125")
 		increase := state.BaseFee.ToLegacyDec().Mul(lr).TruncateInt()
 
@@ -338,7 +338,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("target block with aimd eip1559 at min base fee + LR", func() {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()[1]
 		params := types.DefaultAIMDParams()
 
 		// Reaching the target block size means that we expect this to not
@@ -363,7 +363,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 
 	s.Run("target block with aimd eip1559 at preset base fee + LR", func() {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()[1]
 		state.BaseFee = state.BaseFee.Mul(math.NewInt(2))
 		state.LearningRate = math.LegacyMustNewDecFromStr("0.125")
 		params := types.DefaultAIMDParams()
@@ -396,7 +396,7 @@ func (s *KeeperTestSuite) TestGetBaseFee() {
 		gs := types.DefaultGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
 
-		state := gs.States[0]
+		state := gs.States[1]
 
 		fee, err := s.feeMarketKeeper.GetBaseFee(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
@@ -407,7 +407,7 @@ func (s *KeeperTestSuite) TestGetBaseFee() {
 		gs := types.DefaultAIMDGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
 
-		state := gs.States[0]
+		state := gs.States[1]
 
 		fee, err := s.feeMarketKeeper.GetBaseFee(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
@@ -420,7 +420,7 @@ func (s *KeeperTestSuite) TestGetLearningRate() {
 		gs := types.DefaultGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
 
-		state := gs.States[0]
+		state := gs.States[1]
 
 		lr, err := s.feeMarketKeeper.GetLearningRate(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
@@ -431,7 +431,7 @@ func (s *KeeperTestSuite) TestGetLearningRate() {
 		gs := types.DefaultAIMDGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
 
-		state := gs.States[0]
+		state := gs.States[1]
 
 		lr, err := s.feeMarketKeeper.GetLearningRate(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
@@ -444,7 +444,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 		gs := types.DefaultGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
 
-		state := gs.States[0]
+		state := gs.States[1]
 
 		expected := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, state.BaseFee))
 
@@ -457,7 +457,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 		gs := types.DefaultAIMDGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
 
-		state := gs.States[0]
+		state := gs.States[1]
 
 		expected := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, state.BaseFee))
 

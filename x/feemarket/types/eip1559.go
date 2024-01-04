@@ -48,6 +48,9 @@ var (
 
 	// DefaultFeeDenom is the Cosmos SDK default bond denom.
 	DefaultFeeDenom = sdk.DefaultBondDenom
+
+	// TestFeeDenom is the other fee denom for testing purpose.
+	TestFeeDenom = "fee"
 )
 
 // DefaultParams returns a default set of parameters that implements
@@ -72,6 +75,13 @@ func DefaultParams() Params {
 // implementation without the AIMD learning rate adjustment algorithm.
 func DefaultState() []State {
 	return []State{
+		NewState(
+			TestFeeDenom,
+			DefaultWindow,
+			DefaultMinBaseFee,
+			DefaultMinBaseFee,
+			DefaultMinLearningRate,
+		),
 		NewState(
 			DefaultFeeDenom,
 			DefaultWindow,

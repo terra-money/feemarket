@@ -70,7 +70,7 @@ func (s *NetworkTestSuite) TestGetState() {
 	ctx := s.Network.Validators[0].ClientCtx
 
 	common := []string{
-		types.DefaultFeeDenom,
+		"",
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
 	for _, tc := range []struct {
@@ -78,12 +78,12 @@ func (s *NetworkTestSuite) TestGetState() {
 
 		args []string
 		err  error
-		obj  types.State
+		obj  []types.State
 	}{
 		{
 			name: "should return default state",
 			args: common,
-			obj:  types.DefaultState()[0],
+			obj:  types.DefaultState(),
 		},
 	} {
 		s.T().Run(tc.name, func(t *testing.T) {
@@ -97,8 +97,8 @@ func (s *NetworkTestSuite) TestGetState() {
 				require.NoError(t, err)
 				var resp types.StateResponse
 				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.NotNil(t, resp.States[0])
-				require.Equal(t, tc.obj, resp.States[0])
+				require.NotNil(t, resp.States)
+				require.Equal(t, tc.obj, resp.States)
 			}
 		})
 	}
@@ -110,7 +110,7 @@ func (s *NetworkTestSuite) TestSpamTx() {
 	ctx := s.Network.Validators[0].ClientCtx
 
 	common := []string{
-		types.DefaultFeeDenom,
+		"",
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
 	for _, tc := range []struct {
@@ -118,12 +118,12 @@ func (s *NetworkTestSuite) TestSpamTx() {
 
 		args []string
 		err  error
-		obj  types.State
+		obj  []types.State
 	}{
 		{
 			name: "should return default state",
 			args: common,
-			obj:  types.DefaultState()[0],
+			obj:  types.DefaultState(),
 		},
 	} {
 		// TODO SPAM TX
@@ -139,8 +139,8 @@ func (s *NetworkTestSuite) TestSpamTx() {
 				require.NoError(t, err)
 				var resp types.StateResponse
 				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.NotNil(t, resp.States[0])
-				require.Equal(t, tc.obj, resp.States[0])
+				require.NotNil(t, resp.States)
+				require.Equal(t, tc.obj, resp.States)
 			}
 		})
 	}
