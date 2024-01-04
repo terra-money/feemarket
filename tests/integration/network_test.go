@@ -70,6 +70,7 @@ func (s *NetworkTestSuite) TestGetState() {
 	ctx := s.Network.Validators[0].ClientCtx
 
 	common := []string{
+		types.DefaultFeeDenom,
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
 	for _, tc := range []struct {
@@ -95,7 +96,7 @@ func (s *NetworkTestSuite) TestGetState() {
 			} else {
 				require.NoError(t, err)
 				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.States[0]))
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.States[0])
 				require.Equal(t, tc.obj, resp.States[0])
 			}
@@ -109,6 +110,7 @@ func (s *NetworkTestSuite) TestSpamTx() {
 	ctx := s.Network.Validators[0].ClientCtx
 
 	common := []string{
+		types.DefaultFeeDenom,
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
 	for _, tc := range []struct {
@@ -136,7 +138,7 @@ func (s *NetworkTestSuite) TestSpamTx() {
 			} else {
 				require.NoError(t, err)
 				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.States[0]))
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.States[0])
 				require.Equal(t, tc.obj, resp.States[0])
 			}
