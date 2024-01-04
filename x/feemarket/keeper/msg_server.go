@@ -43,4 +43,19 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 	return &types.MsgParamsResponse{}, nil
 }
 
-// TODO: Add call to update the fee market state.
+// State defines a method that updates the module's state for a feeDenom. The signer of the message must
+// be the module authority.
+func (ms MsgServer) State(goCtx context.Context, msg *types.MsgState) (*types.MsgStateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if msg.Authority != ms.k.GetAuthority() {
+		return nil, fmt.Errorf("invalid authority to execute message")
+	}
+
+	state := msg.State
+	if err := ms.k.SetState(ctx, state); err != nil {
+		return nil, fmt.Errorf("error setting state for %s: %w", state.FeeDenom, err)
+	}
+
+	return &types.MsgStateResponse{}, nil
+}
