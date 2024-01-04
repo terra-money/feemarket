@@ -62,7 +62,7 @@ func (s *KeeperTestSuite) TestStateRequest() {
 
 		s.Require().Equal(types.DefaultState(), resp.States)
 
-		states, err := s.feeMarketKeeper.GetState(s.ctx, "")
+		states, err := s.feeMarketKeeper.GetStates(s.ctx)
 		s.Require().NoError(err)
 
 		s.Require().Equal(resp.States, states)
@@ -71,6 +71,7 @@ func (s *KeeperTestSuite) TestStateRequest() {
 	s.Run("can get updated state", func() {
 		state := types.State{
 			FeeDenom:     types.DefaultFeeDenom,
+			MinBaseFee:   math.OneInt(),
 			BaseFee:      math.OneInt(),
 			LearningRate: math.LegacyOneDec(),
 			Window:       []uint64{1},
@@ -86,12 +87,12 @@ func (s *KeeperTestSuite) TestStateRequest() {
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		s.Require().Equal(state, resp.States)
+		s.Require().Equal(state, resp.States[0])
 
 		states, err := s.feeMarketKeeper.GetState(s.ctx, types.DefaultFeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().Equal(resp.States, states)
+		s.Require().Equal(resp.States[0], states)
 	})
 }
 
