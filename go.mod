@@ -327,6 +327,7 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/terra-money/cosmos-sdk v0.47.6-terra.0
 	github.com/cosmos/gogoproto => github.com/cosmos/gogoproto v1.4.8
 	github.com/cosmos/iavl => github.com/cosmos/iavl v0.20.1
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2
 )
