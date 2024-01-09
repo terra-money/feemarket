@@ -1,6 +1,6 @@
 module github.com/skip-mev/feemarket
 
-go 1.20
+go 1.21.4
 
 require (
 	cosmossdk.io/api v0.3.1
@@ -326,6 +326,5 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/terra-money/cosmos-sdk v0.47.6-terra.0
 	github.com/cosmos/iavl => github.com/cosmos/iavl v0.20.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/skip-mev/chaintestutil => github.com/freeelancer/chaintestutil v0.0.0-go1.20
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
