@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
@@ -60,8 +61,12 @@ func (k *Keeper) GetState(ctx sdk.Context, feeDenom string) (types.State, error)
 	bz := store.Get(key)
 
 	state := types.State{}
+	if bz == nil {
+		return state, sdkerrors.ErrKeyNotFound.Wrapf("state not found for feeDenom: %s", feeDenom)
+	}
+
 	if err := state.Unmarshal(bz); err != nil {
-		return types.State{}, err
+		return state, err
 	}
 
 	return state, nil
