@@ -21,6 +21,7 @@ import (
 	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
 	"github.com/skip-mev/feemarket/x/feemarket/ante/mocks"
 	feemarketpost "github.com/skip-mev/feemarket/x/feemarket/post"
+	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
 type TestSuite struct {
@@ -245,7 +246,7 @@ func (s *TestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums []uint64, 
 
 // NewTestFeeAmount is a test fee amount.
 func NewTestFeeAmount() sdk.Coins {
-	return sdk.NewCoins(sdk.NewInt64Coin("stake", 150))
+	return sdk.NewCoins(sdk.NewInt64Coin(types.DefaultFeeDenom, 150))
 }
 
 // NewTestGasLimit is a test fee gas limit.

@@ -52,7 +52,7 @@ type TestSuite struct {
 func NewE2ETestSuiteFromSpec(spec *interchaintest.ChainSpec) *TestSuite {
 	return &TestSuite{
 		spec:  spec,
-		denom: "stake",
+		denom: "uluna",
 	}
 }
 

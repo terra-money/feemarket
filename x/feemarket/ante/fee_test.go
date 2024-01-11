@@ -17,7 +17,7 @@ func TestAnteHandle(t *testing.T) {
 	// Same data for every test case
 	gasLimit := antesuite.NewTestGasLimit()
 	validFeeAmount := types.DefaultMinBaseFee.MulRaw(int64(gasLimit))
-	validFee := sdk.NewCoins(sdk.NewCoin("stake", validFeeAmount))
+	validFee := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmount))
 
 	testCases := []antesuite.TestCase{
 		{

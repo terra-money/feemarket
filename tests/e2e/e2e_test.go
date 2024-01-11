@@ -20,7 +20,7 @@ var (
 	// config params
 	numValidators = 3
 	numFullNodes  = 1
-	denom         = "stake"
+	denom         = "uluna"
 
 	image = ibc.DockerImage{
 		Repository: "feemarket-e2e",

@@ -104,8 +104,8 @@ func TestPostHandle(t *testing.T) {
 	gasLimit := antesuite.NewTestGasLimit()
 	validFeeAmount := types.DefaultMinBaseFee.MulRaw(int64(gasLimit))
 	validFeeAmountWithTip := validFeeAmount.Add(sdk.NewInt(100))
-	validFee := sdk.NewCoins(sdk.NewCoin("stake", validFeeAmount))
-	validFeeWithTip := sdk.NewCoins(sdk.NewCoin("stake", validFeeAmountWithTip))
+	validFee := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmount))
+	validFeeWithTip := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmountWithTip))
 
 	testCases := []antesuite.TestCase{
 		{
