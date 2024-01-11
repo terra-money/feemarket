@@ -2,7 +2,6 @@ package types
 
 import (
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Note: We use the same default values as Ethereum for the EIP-1559
@@ -46,8 +45,8 @@ var (
 	// DefaultMaxLearningRate is not used in the base EIP-1559 implementation.
 	DefaultMaxLearningRate = math.LegacyMustNewDecFromStr("0.125")
 
-	// DefaultFeeDenom is the Cosmos SDK default bond denom.
-	DefaultFeeDenom = sdk.DefaultBondDenom
+	// DefaultFeeDenom is set to uluna
+	DefaultFeeDenom = "uluna"
 
 	// TestFeeDenom is the other fee denom for testing purpose.
 	TestFeeDenom = "fee"

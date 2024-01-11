@@ -446,7 +446,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 
 		state := gs.States[1]
 
-		expected := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, state.BaseFee))
+		expected := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, state.BaseFee))
 
 		mgp, err := s.feeMarketKeeper.GetMinGasPrices(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
@@ -459,7 +459,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 
 		state := gs.States[1]
 
-		expected := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, state.BaseFee))
+		expected := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, state.BaseFee))
 
 		mgp, err := s.feeMarketKeeper.GetMinGasPrices(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
