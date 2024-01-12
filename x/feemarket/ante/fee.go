@@ -51,7 +51,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	}
 
 	fee := feeTx.GetFee()
-	gas := feeTx.GetGas() // use provided gas limit
+	gas := feeTx.GetGas() // use provided gas limitf
 
 	ctx.Logger().Info("fee deduct ante handle",
 		"min gas prices", minGasPrices,
@@ -64,10 +64,11 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		if err != nil {
 			return ctx, errorsmod.Wrapf(err, "error checking fee")
 		}
+		// use newCtx to set priority and min gas prices for transaction
+		minGasPricesDecCoins := sdk.NewDecCoinsFromCoins(minGasPrices...)
+		ctx := ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
 	}
 
-	minGasPricesDecCoins := sdk.NewDecCoinsFromCoins(minGasPrices...)
-	newCtx := ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
 	return next(newCtx, tx, simulate)
 }
 
