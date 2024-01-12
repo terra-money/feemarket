@@ -1,5 +1,9 @@
 package types
 
+import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+)
+
 const (
 	// ModuleName is the name of the feemarket module.
 	ModuleName = "feemarket"
@@ -7,7 +11,7 @@ const (
 	StoreKey = ModuleName
 
 	// FeeCollectorName the root string for the fee market fee collector account address.
-	FeeCollectorName = "feemarket-fee-collector"
+	FeeCollectorName = authtypes.FeeCollectorName
 )
 
 const (
