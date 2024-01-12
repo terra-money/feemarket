@@ -66,7 +66,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		}
 		// use newCtx to set priority and min gas prices for transaction
 		minGasPricesDecCoins := sdk.NewDecCoinsFromCoins(minGasPrices...)
-		ctx := ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
+		ctx = ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
 	}
 
 	return next(ctx, tx, simulate)
