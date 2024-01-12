@@ -69,7 +69,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		ctx := ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
 	}
 
-	return next(newCtx, tx, simulate)
+	return next(ctx, tx, simulate)
 }
 
 // CheckTxFees implements the logic for the fee market to check if a Tx has provided sufficient
