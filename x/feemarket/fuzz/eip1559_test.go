@@ -43,7 +43,7 @@ func TestBaseFee(t *testing.T) {
 		params := CreateRandomParams(t)
 
 		// Update the current base fee to be 10% higher than the minimum base fee.
-		prevBaseFee := state.BaseFee.Mul(math.NewInt(11)).Quo(math.NewInt(10))
+		prevBaseFee := state.BaseFee.MulInt64(11).QuoInt64(10)
 		state.BaseFee = prevBaseFee
 
 		// Randomly generate the block utilization.

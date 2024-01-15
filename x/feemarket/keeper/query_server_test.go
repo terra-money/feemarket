@@ -71,8 +71,8 @@ func (s *KeeperTestSuite) TestStateRequest() {
 	s.Run("can get updated state", func() {
 		state := types.State{
 			FeeDenom:     types.DefaultFeeDenom,
-			MinBaseFee:   math.OneInt(),
-			BaseFee:      math.OneInt(),
+			MinBaseFee:   math.LegacyOneDec(),
+			BaseFee:      math.LegacyOneDec(),
 			LearningRate: math.LegacyOneDec(),
 			Window:       []uint64{1},
 			Index:        0,

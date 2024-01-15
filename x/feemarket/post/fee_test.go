@@ -102,7 +102,7 @@ func TestSendTip(t *testing.T) {
 func TestPostHandle(t *testing.T) {
 	// Same data for every test case
 	gasLimit := antesuite.NewTestGasLimit()
-	validFeeAmount := types.DefaultMinBaseFee.MulRaw(int64(gasLimit))
+	validFeeAmount := types.DefaultMinBaseFee.MulInt64(int64(gasLimit)).TruncateInt()
 	validFeeAmountWithTip := validFeeAmount.Add(sdk.NewInt(100))
 	validFee := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmount))
 	validFeeWithTip := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmountWithTip))

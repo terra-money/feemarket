@@ -45,7 +45,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
 	}
 
-	minGasPrices, err := dfd.feemarketKeeper.GetMinGasPrices(ctx, feeTx.GetFee().GetDenomByIndex(0))
+	minGasPricesDecCoins, err := dfd.feemarketKeeper.GetMinGasPrices(ctx, feeTx.GetFee().GetDenomByIndex(0))
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")
 	}
@@ -54,18 +54,17 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	gas := feeTx.GetGas() // use provided gas limitf
 
 	ctx.Logger().Info("fee deduct ante handle",
-		"min gas prices", minGasPrices,
+		"min gas prices", minGasPricesDecCoins,
 		"fee", fee,
 		"gas limit", gas,
 	)
 
 	if !simulate {
-		fee, _, err = CheckTxFees(ctx, minGasPrices, feeTx, true)
+		fee, _, err = CheckTxFees(ctx, minGasPricesDecCoins, feeTx, true)
 		if err != nil {
 			return ctx, errorsmod.Wrapf(err, "error checking fee")
 		}
 		// use newCtx to set priority and min gas prices for transaction
-		minGasPricesDecCoins := sdk.NewDecCoinsFromCoins(minGasPrices...)
 		ctx = ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
 	}
 
@@ -74,8 +73,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 // CheckTxFees implements the logic for the fee market to check if a Tx has provided sufficient
 // fees given the current state of the fee market. Returns an error if insufficient fees.
-func CheckTxFees(ctx sdk.Context, minFees sdk.Coins, feeTx sdk.FeeTx, isCheck bool) (feeCoins sdk.Coins, tip sdk.Coins, err error) {
-	minFeesDecCoins := sdk.NewDecCoinsFromCoins(minFees...)
+func CheckTxFees(ctx sdk.Context, minFeesDecCoins sdk.DecCoins, feeTx sdk.FeeTx, isCheck bool) (feeCoins sdk.Coins, tip sdk.Coins, err error) {
 	feeCoins = feeTx.GetFee()
 
 	// Ensure that the provided fees meet the minimum

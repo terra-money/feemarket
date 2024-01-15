@@ -31,8 +31,8 @@ func FuzzDefaultFeeMarket(f *testing.F) {
 		state := types.DefaultState()[0]
 		params := types.DefaultParams()
 
-		state.MinBaseFee = math.NewIntFromUint64(100)
-		state.BaseFee = math.NewIntFromUint64(200)
+		state.MinBaseFee = math.LegacyNewDec(100)
+		state.BaseFee = math.LegacyNewDec(200)
 		err := state.Update(blockGasUsed, params)
 
 		if blockGasUsed > params.MaxBlockUtilization {
@@ -79,8 +79,8 @@ func FuzzAIMDFeeMarket(f *testing.F) {
 	f.Fuzz(func(t *testing.T, blockGasUsed uint64) {
 		state := types.DefaultAIMDState()[0]
 		params := types.DefaultAIMDParams()
-		state.MinBaseFee = math.NewIntFromUint64(100)
-		state.BaseFee = math.NewIntFromUint64(200)
+		state.MinBaseFee = math.LegacyNewDec(100)
+		state.BaseFee = math.LegacyNewDec(200)
 		state.Window = make([]uint64, 1)
 		err := state.Update(blockGasUsed, params)
 
