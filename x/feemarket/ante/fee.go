@@ -78,7 +78,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		ctx = ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
 	} else {
 		// add gas usage as CheckTxFees consumes gas
-		ctx.BlockGasMeter().ConsumeGas(104000, "fee")
+		ctx.GasMeter().ConsumeGas(104000, "simulate: CheckTxFees")
 	}
 
 	return next(ctx, tx, simulate)
