@@ -48,7 +48,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	s.Run("empty block default eip1559 with preset base fee that should default to min", func() {
 		// Set the base fee to just below the expected threshold decrease of 1/8th. This means it
 		// should default to the minimum base fee.
-		state := types.DefaultState()[1]
+		state := types.DefaultState()[0]
 		factor := math.LegacyMustNewDecFromStr("0.125")
 		increase := state.BaseFee.Mul(factor).TruncateInt()
 		state.BaseFee = types.DefaultMinBaseFee.Add(increase.ToLegacyDec()).Sub(math.LegacyOneDec())

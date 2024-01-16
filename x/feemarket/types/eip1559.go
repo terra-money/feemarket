@@ -84,8 +84,8 @@ func DefaultState() []State {
 		NewState(
 			DefaultFeeDenom,
 			DefaultWindow,
-			DefaultMinBaseFee,
-			DefaultMinBaseFee,
+			math.LegacyMustNewDecFromStr("0.025"),
+			math.LegacyMustNewDecFromStr("0.025"),
 			DefaultMinLearningRate,
 		),
 	}
