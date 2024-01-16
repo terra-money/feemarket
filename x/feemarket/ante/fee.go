@@ -41,7 +41,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, sdkerrors.ErrInvalidGasLimit.Wrapf("must provide positive gas")
 	}
 
-	if feeTx.GetFee().Len() != 1 {
+	if !simulate && ctx.BlockHeight() > 0 && feeTx.GetFee().Len() != 1 {
 		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
 	}
 

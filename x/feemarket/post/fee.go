@@ -66,7 +66,7 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		return next(ctx, tx, simulate, success)
 	}
 
-	if feeTx.GetFee().Len() != 1 {
+	if !simulate && ctx.BlockHeight() > 0 && feeTx.GetFee().Len() != 1 {
 		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
 	}
 
