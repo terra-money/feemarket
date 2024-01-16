@@ -77,6 +77,7 @@ func DefaultAIMDParams() Params {
 		DefaultAIMDMinLearningRate,
 		DefaultAIMDMaxLearningRate,
 		true,
+		DefaultFeeDenom,
 	)
 }
 

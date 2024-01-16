@@ -24,6 +24,7 @@ func NewParams(
 	minLearingRate math.LegacyDec,
 	maxLearningRate math.LegacyDec,
 	enabled bool,
+	defaultFeeDenom string,
 ) Params {
 	return Params{
 		Alpha:                  alpha,
@@ -36,6 +37,7 @@ func NewParams(
 		MaxBlockUtilization:    maxBlockSize,
 		Window:                 window,
 		Enabled:                enabled,
+		DefaultFeeDenom:        defaultFeeDenom,
 	}
 }
 

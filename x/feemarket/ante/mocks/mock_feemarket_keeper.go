@@ -16,7 +16,7 @@ type FeeMarketKeeper struct {
 }
 
 // GetMinGasPrices provides a mock function with given fields: ctx
-func (_m *FeeMarketKeeper) GetMinGasPrices(ctx types.Context) (types.DecCoins, error) {
+func (_m *FeeMarketKeeper) GetMinGasPrices(ctx types.Context, feeDenom string) (types.DecCoins, error) {
 	ret := _m.Called(ctx)
 
 	var r0 types.DecCoins

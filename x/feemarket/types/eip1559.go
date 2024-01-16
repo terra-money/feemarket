@@ -67,6 +67,7 @@ func DefaultParams() Params {
 		DefaultMinLearningRate,
 		DefaultMaxLearningRate,
 		true,
+		DefaultFeeDenom,
 	)
 }
 

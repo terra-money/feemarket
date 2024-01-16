@@ -45,7 +45,17 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
 	}
 
-	minGasPricesDecCoins, err := dfd.feemarketKeeper.GetMinGasPrices(ctx, feeTx.GetFee().GetDenomByIndex(0))
+	params, err := dfd.feemarketKeeper.GetParams(ctx)
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "unable to get fee market params")
+	}
+
+	feeDenom := params.DefaultFeeDenom
+	if feeTx.GetFee().Len() == 1 {
+		feeDenom = feeTx.GetFee().GetDenomByIndex(0)
+	}
+
+	minGasPricesDecCoins, err := dfd.feemarketKeeper.GetMinGasPrices(ctx, feeDenom)
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")
 	}

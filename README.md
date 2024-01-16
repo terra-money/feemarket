@@ -108,19 +108,19 @@ The feemarket module provides a keeper interface for accessing the KVStore.
 ```go
 type FeeMarketKeeper interface {
 	// Get the current state from the store.
-    GetState(ctx sdk.Context) (types.State, error)
+  GetState(ctx sdk.Context, feeDenom string) (feemarkettypes.State, error)
 
-    // Set the state in the store.
-    SetState(ctx sdk.Context, state types.State) error
+  // Set the state in the store.
+	SetState(ctx sdk.Context, state feemarkettypes.State) error
 
-    // Get the current params from the store.
-    GetParams(ctx sdk.Context) (types.Params, error)
+  // Get the current params from the store.
+  GetParams(ctx sdk.Context) (feemarkettypes.Params, error)
 
-    // Set the params in the store.
-    SetParams(ctx sdk.Context, params types.Params) error
+  // Set the params in the store.
+  SetParams(ctx sdk.Context, params feemarkettypes.Params) error
 	
-	// Get the current minimum gas prices (base fee) from the store.
-    GetMinGasPrices(ctx sdk.Context) (sdk.Coins, error)
+  // Get the current minimum gas prices (base fee) from the store.
+  GetMinGasPrices(ctx sdk.Context, feeDenom string) (sdk.DecCoins, error)
 }
 ```
 

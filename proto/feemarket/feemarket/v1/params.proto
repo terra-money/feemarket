@@ -71,4 +71,8 @@ message Params {
   // Enabled is a boolean that determines whether the EIP1559 fee market is
   // enabled.
   bool enabled = 10;
+
+  // DefaultFeeDenom is the default fee denom for the EIP1559 fee market
+  // used to simulate transactions if there are no fees specified
+  string default_fee_denom = 11;
 }
