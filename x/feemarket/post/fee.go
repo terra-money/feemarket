@@ -53,8 +53,6 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		return ctx, errorsmod.Wrap(sdkerrors.ErrInvalidGasLimit, "must provide positive gas")
 	}
 
-	var tip sdk.Coins
-
 	// update fee market params
 	params, err := dfd.feemarketKeeper.GetParams(ctx)
 	if err != nil {
@@ -93,18 +91,16 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 	)
 
 	if !simulate {
-		fee, tip, err = ante.CheckTxFees(ctx, minGasPrices, feeTx, false)
-		if err != nil {
+		if err := ante.CheckTxFees(ctx, minGasPrices, feeTx); err != nil {
 			return ctx, err
 		}
 	}
 
 	ctx.Logger().Info("fee deduct post handle",
 		"fee", fee,
-		"tip", tip,
 	)
 
-	if err := dfd.DeductFeeAndTip(ctx, tx, fee, tip); err != nil {
+	if err := dfd.DeductFee(ctx, tx, fee); err != nil {
 		return ctx, err
 	}
 
@@ -121,9 +117,9 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(ctx, tx, simulate, success)
 }
 
-// DeductFeeAndTip deducts the provided fee and tip from the fee payer.
+// DeductFee deducts the provided fee from the fee payer.
 // If the tx uses a feegranter, the fee granter address will pay the fee instead of the tx signer.
-func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.Tx, fee, tip sdk.Coins) error {
+func (dfd FeeMarketDeductDecorator) DeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee sdk.Coins) error {
 	feeTx, ok := sdkTx.(sdk.FeeTx)
 	if !ok {
 		return errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
@@ -159,7 +155,7 @@ func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.T
 
 	var events sdk.Events
 
-	// deduct the fees and tip
+	// deduct the fees
 	if !fee.IsZero() {
 		err := DeductCoins(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		if err != nil {
@@ -172,22 +168,6 @@ func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.T
 			sdk.NewAttribute(sdk.AttributeKeyFeePayer, deductFeesFrom.String()),
 		))
 	}
-
-	// removed code for sending tip to proposer
-	// proposer := sdk.AccAddress(ctx.BlockHeader().ProposerAddress)
-	// if !tip.IsZero() {
-	// 	err := SendTip(dfd.bankKeeper, ctx, deductFeesFromAcc.GetAddress(), deductFeesFromAcc.GetAddress(), tip)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	events = append(events, sdk.NewEvent(
-	// 		feemarkettypes.EventTypeTipPay,
-	// 		sdk.NewAttribute(feemarkettypes.AttributeKeyTip, tip.String()),
-	// 		sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayer, deductFeesFrom.String()),
-	// 		sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayee, proposer.String()),
-	// 	))
-	// }
 
 	ctx.EventManager().EmitEvents(events)
 	return nil

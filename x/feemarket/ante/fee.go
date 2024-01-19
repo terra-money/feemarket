@@ -70,8 +70,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	)
 
 	if !simulate {
-		fee, _, err = CheckTxFees(ctx, minGasPricesDecCoins, feeTx, true)
-		if err != nil {
+		if err = CheckTxFees(ctx, minGasPricesDecCoins, feeTx); err != nil {
 			return ctx, errorsmod.Wrapf(err, "error checking fee")
 		}
 		// use newCtx to set priority and min gas prices for transaction
@@ -86,50 +85,32 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 // CheckTxFees implements the logic for the fee market to check if a Tx has provided sufficient
 // fees given the current state of the fee market. Returns an error if insufficient fees.
-func CheckTxFees(ctx sdk.Context, minFeesDecCoins sdk.DecCoins, feeTx sdk.FeeTx, isCheck bool) (feeCoins sdk.Coins, tip sdk.Coins, err error) {
-	feeCoins = feeTx.GetFee()
-
+func CheckTxFees(ctx sdk.Context, minFeesDecCoins sdk.DecCoins, feeTx sdk.FeeTx) error {
 	// Ensure that the provided fees meet the minimum
 	minGasPrices := minFeesDecCoins
 	if !minGasPrices.IsZero() {
 		requiredFees := make(sdk.Coins, len(minGasPrices))
-		consumedFees := make(sdk.Coins, len(minGasPrices))
 
-		// Determine the required fees by multiplying each required minimum gas
-		// price by the gas, where fee = ceil(minGasPrice * gas).
-		gasConsumed := int64(ctx.GasMeter().GasConsumed())
-		gcDec := sdkmath.LegacyNewDec(gasConsumed)
 		glDec := sdkmath.LegacyNewDec(int64(feeTx.GetGas()))
 
 		for i, gp := range minGasPrices {
-			consumedFee := gp.Amount.Mul(gcDec)
 			limitFee := gp.Amount.Mul(glDec)
-			consumedFees[i] = sdk.NewCoin(gp.Denom, consumedFee.Ceil().RoundInt())
 			requiredFees[i] = sdk.NewCoin(gp.Denom, limitFee.Ceil().RoundInt())
 		}
 
+		feeCoins := feeTx.GetFee()
+
 		if !feeCoins.IsAnyGTE(requiredFees) {
-			return nil, nil, sdkerrors.ErrInsufficientFee.Wrapf(
-				"got: %s required: %s, minGasPrices: %s, gas: %d",
+			return sdkerrors.ErrInsufficientFee.Wrapf(
+				"got: %s required: %s, minGasPrices: %s",
 				feeCoins,
 				requiredFees,
 				minGasPrices,
-				gasConsumed,
 			)
-		}
-
-		if isCheck {
-			//  set fee coins to be required amount if checking
-			feeCoins = requiredFees
-		} else {
-			// tip is the difference between feeCoins and the required fees
-			tip = feeCoins.Sub(requiredFees...)
-			// set fee coins to be ONLY the consumed amount if we are calculated consumed fee to deduct
-			feeCoins = consumedFees
 		}
 	}
 
-	return feeCoins, tip, nil
+	return nil
 }
 
 // getTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
