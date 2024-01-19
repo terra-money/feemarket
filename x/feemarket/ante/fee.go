@@ -74,7 +74,11 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			return ctx, errorsmod.Wrapf(err, "error checking fee")
 		}
 		// use newCtx to set priority and min gas prices for transaction
-		ctx = ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
+		if params.DefaultFeeDenom == fee[0].Denom {
+			ctx = ctx.WithPriority(getTxPriority(fee[0], int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
+		} else {
+			ctx = ctx.WithPriority(0).WithMinGasPrices(minGasPricesDecCoins)
+		}
 	} else {
 		// add gas usage as CheckTxFees consumes gas
 		ctx.GasMeter().ConsumeGas(104000, "simulate: CheckTxFees")
@@ -117,17 +121,16 @@ func CheckTxFees(ctx sdk.Context, minFeesDecCoins sdk.DecCoins, feeTx sdk.FeeTx)
 // provided in a transaction.
 // NOTE: This implementation should be used with a great consideration as it opens potential attack vectors
 // where txs with multiple coins could not be prioritized as expected.
-func getTxPriority(fee sdk.Coins, gas int64) int64 {
+func getTxPriority(fee sdk.Coin, gas int64) int64 {
 	var priority int64
-	for _, c := range fee {
-		p := int64(math.MaxInt64)
-		gasPrice := c.Amount.QuoRaw(gas)
-		if gasPrice.IsInt64() {
-			p = gasPrice.Int64()
-		}
-		if priority == 0 || p < priority {
-			priority = p
-		}
+
+	p := int64(math.MaxInt64)
+	gasPrice := fee.Amount.QuoRaw(gas)
+	if gasPrice.IsInt64() {
+		p = gasPrice.Int64()
+	}
+	if priority == 0 || p < priority {
+		priority = p
 	}
 
 	return priority
