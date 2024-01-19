@@ -15,20 +15,20 @@ type FeeMarketKeeper struct {
 	mock.Mock
 }
 
-// GetMinGasPrices provides a mock function with given fields: ctx
-func (_m *FeeMarketKeeper) GetMinGasPrices(ctx types.Context, feeDenom string) (types.DecCoins, error) {
+// GetMinGasPrice provides a mock function with given fields: ctx
+func (_m *FeeMarketKeeper) GetMinGasPrice(ctx types.Context, feeDenom string) (types.DecCoin, error) {
 	ret := _m.Called(ctx)
 
-	var r0 types.DecCoins
+	var r0 types.DecCoin
 	var r1 error
-	if rf, ok := ret.Get(0).(func(types.Context) (types.DecCoins, error)); ok {
+	if rf, ok := ret.Get(0).(func(types.Context) (types.DecCoin, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(types.Context) types.DecCoins); ok {
+	if rf, ok := ret.Get(0).(func(types.Context) types.DecCoin); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(types.DecCoins)
+			r0 = ret.Get(0).(types.DecCoin)
 		}
 	}
 

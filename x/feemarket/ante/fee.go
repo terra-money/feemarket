@@ -55,7 +55,7 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		feeDenom = feeTx.GetFee().GetDenomByIndex(0)
 	}
 
-	minGasPricesDecCoins, err := dfd.feemarketKeeper.GetMinGasPrices(ctx, feeDenom)
+	minGasPricesDecCoin, err := dfd.feemarketKeeper.GetMinGasPrice(ctx, feeDenom)
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")
 	}
@@ -64,20 +64,20 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	gas := feeTx.GetGas() // use provided gas limit
 
 	ctx.Logger().Info("fee deduct ante handle",
-		"min gas prices", minGasPricesDecCoins,
+		"min gas prices", minGasPricesDecCoin,
 		"fee", fee,
 		"gas limit", gas,
 	)
 
 	if !simulate {
-		if err = CheckTxFees(ctx, minGasPricesDecCoins, feeTx); err != nil {
+		if err = CheckTxFees(ctx, minGasPricesDecCoin, feeTx); err != nil {
 			return ctx, errorsmod.Wrapf(err, "error checking fee")
 		}
 		// use newCtx to set priority and min gas prices for transaction
 		if params.DefaultFeeDenom == fee[0].Denom {
-			ctx = ctx.WithPriority(getTxPriority(fee[0], int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
+			ctx = ctx.WithPriority(getTxPriority(fee[0], int64(gas))).WithMinGasPrices(sdk.NewDecCoins(minGasPricesDecCoin))
 		} else {
-			ctx = ctx.WithPriority(0).WithMinGasPrices(minGasPricesDecCoins)
+			ctx = ctx.WithPriority(0).WithMinGasPrices(sdk.NewDecCoins(minGasPricesDecCoin))
 		}
 	} else {
 		// add gas usage as CheckTxFees consumes gas
@@ -89,27 +89,24 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 // CheckTxFees implements the logic for the fee market to check if a Tx has provided sufficient
 // fees given the current state of the fee market. Returns an error if insufficient fees.
-func CheckTxFees(ctx sdk.Context, minFeesDecCoins sdk.DecCoins, feeTx sdk.FeeTx) error {
+func CheckTxFees(ctx sdk.Context, minFeesDecCoin sdk.DecCoin, feeTx sdk.FeeTx) error {
 	// Ensure that the provided fees meet the minimum
-	minGasPrices := minFeesDecCoins
-	if !minGasPrices.IsZero() {
-		requiredFees := make(sdk.Coins, len(minGasPrices))
+	minGasPrice := minFeesDecCoin
+	if !minGasPrice.IsZero() {
 
 		glDec := sdkmath.LegacyNewDec(int64(feeTx.GetGas()))
 
-		for i, gp := range minGasPrices {
-			limitFee := gp.Amount.Mul(glDec)
-			requiredFees[i] = sdk.NewCoin(gp.Denom, limitFee.Ceil().RoundInt())
-		}
+		limitFee := minGasPrice.Amount.Mul(glDec)
+		requiredFees := sdk.NewCoin(minGasPrice.Denom, limitFee.Ceil().RoundInt())
 
 		feeCoins := feeTx.GetFee()
 
-		if !feeCoins.IsAnyGTE(requiredFees) {
+		if !feeCoins.IsAnyGTE(sdk.NewCoins(requiredFees)) {
 			return sdkerrors.ErrInsufficientFee.Wrapf(
 				"got: %s required: %s, minGasPrices: %s",
 				feeCoins,
 				requiredFees,
-				minGasPrices,
+				minGasPrice,
 			)
 		}
 	}

@@ -105,10 +105,10 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		fees, err := s.feeMarketKeeper.GetMinGasPrices(s.ctx, types.DefaultFeeDenom)
+		fees, err := s.feeMarketKeeper.GetMinGasPrice(s.ctx, types.DefaultFeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().Equal(resp.Fees, fees)
+		s.Require().Equal(resp.Fee, fees)
 	})
 
 	// TODO: fix test, after adding update to state

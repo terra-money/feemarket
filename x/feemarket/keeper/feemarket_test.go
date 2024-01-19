@@ -439,7 +439,7 @@ func (s *KeeperTestSuite) TestGetLearningRate() {
 	})
 }
 
-func (s *KeeperTestSuite) TestGetMinGasPrices() {
+func (s *KeeperTestSuite) TestGetMinGasPrice() {
 	s.Run("can retrieve min gas prices with default eip-1559", func() {
 		gs := types.DefaultGenesisState()
 		s.feeMarketKeeper.InitGenesis(s.ctx, *gs)
@@ -448,7 +448,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 
 		expected := sdk.NewDecCoins(sdk.NewDecCoinFromDec(types.DefaultFeeDenom, state.BaseFee))
 
-		mgp, err := s.feeMarketKeeper.GetMinGasPrices(s.ctx, state.FeeDenom)
+		mgp, err := s.feeMarketKeeper.GetMinGasPrice(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
 		s.Require().Equal(expected, mgp)
 	})
@@ -461,7 +461,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 
 		expected := sdk.NewDecCoins(sdk.NewDecCoinFromDec(types.DefaultFeeDenom, state.BaseFee))
 
-		mgp, err := s.feeMarketKeeper.GetMinGasPrices(s.ctx, state.FeeDenom)
+		mgp, err := s.feeMarketKeeper.GetMinGasPrice(s.ctx, state.FeeDenom)
 		s.Require().NoError(err)
 		s.Require().Equal(expected, mgp)
 	})

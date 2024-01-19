@@ -79,19 +79,18 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")
 	}
 
-	baseFee := sdk.NewDecCoinFromDec(state.FeeDenom, state.BaseFee)
-	minGasPrices := sdk.NewDecCoins(baseFee)
+	minGasPrice := sdk.NewDecCoinFromDec(state.FeeDenom, state.BaseFee)
 
 	fee := feeTx.GetFee()
 	gas := ctx.GasMeter().GasConsumed() // use context gas consumed
 
 	ctx.Logger().Info("fee deduct post handle",
-		"min gas prices", minGasPrices,
+		"min gas prices", minGasPrice,
 		"gas consumed", gas,
 	)
 
 	if !simulate {
-		if err := ante.CheckTxFees(ctx, minGasPrices, feeTx); err != nil {
+		if err := ante.CheckTxFees(ctx, minGasPrice, feeTx); err != nil {
 			return ctx, err
 		}
 	}

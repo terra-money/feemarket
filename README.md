@@ -120,7 +120,7 @@ type FeeMarketKeeper interface {
   SetParams(ctx sdk.Context, params feemarkettypes.Params) error
 	
   // Get the current minimum gas prices (base fee) from the store.
-  GetMinGasPrices(ctx sdk.Context, feeDenom string) (sdk.DecCoins, error)
+  GetMinGasPrice(ctx sdk.Context, feeDenom string) (sdk.DecCoin, error)
 }
 ```
 
