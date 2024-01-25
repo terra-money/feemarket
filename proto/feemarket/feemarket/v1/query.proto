@@ -42,7 +42,7 @@ message ParamsResponse { Params params = 1 [ (gogoproto.nullable) = false ]; }
 
 // StateRequest is the request type for the Query/State RPC method.
 message StateRequest {
-  string feeDenom = 1;
+  string fee_denom = 1;
 }
 
 // StateResponse is the response type for the Query/State RPC method.
