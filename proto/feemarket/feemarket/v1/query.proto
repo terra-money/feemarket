@@ -50,7 +50,7 @@ message StateResponse { repeated State states = 1 [ (gogoproto.nullable) = false
 
 // BaseFeeRequest is the request type for the Query/BaseFee RPC method.
 message BaseFeeRequest {
-  string feeDenom = 1;
+  string fee_denom = 1;
 }
 
 // StateResponse is the response type for the Query/BaseFee RPC method.
