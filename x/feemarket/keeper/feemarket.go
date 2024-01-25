@@ -26,6 +26,10 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 	}
 
 	for _, state := range states {
+		// Skip updating the fee market if the state has already been updated through MsgState
+		if k.updatedStateMap[state.FeeDenom] {
+			continue
+		}
 
 		// Update the learning rate based on the block utilization seen in the
 		// current block. This is the AIMD learning rate adjustment algorithm.
@@ -52,6 +56,7 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 			return err
 		}
 	}
+	k.updatedStateMap = make(map[string]bool)
 	return nil
 }
 

@@ -20,6 +20,10 @@ type Keeper struct {
 	// The address that is capable of executing a MsgParams message.
 	// Typically, this will be the governance module's address.
 	authority string
+
+	// Map of feeDenom to bool of if the state has been updated through a MsgState message this block
+	// This is used to prevent updating of the state again in the endblocker
+	updatedStateMap map[string]bool
 }
 
 // NewKeeper constructs a new feemarket keeper.
@@ -38,6 +42,7 @@ func NewKeeper(
 		storeKey,
 		authKeeper,
 		authority,
+		make(map[string]bool),
 	}
 
 	return k
