@@ -164,12 +164,20 @@ func (s *State) ValidateBasic() error {
 		return fmt.Errorf("block utilization window cannot be nil or empty")
 	}
 
-	if s.BaseFee.IsNil() || s.BaseFee.LTE(math.LegacyZeroDec()) {
-		return fmt.Errorf("base fee must be positive")
+	if s.MinBaseFee.IsNil() || s.MinBaseFee.LTE(math.LegacyZeroDec()) {
+		return fmt.Errorf("min base fee must be positive")
+	}
+
+	if s.BaseFee.IsNil() || s.BaseFee.LT(s.MinBaseFee) {
+		return fmt.Errorf("base fee must be >= than min base fee")
 	}
 
 	if s.LearningRate.IsNil() || s.LearningRate.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("learning rate must be positive")
+	}
+
+	if s.FeeDenom == "" {
+		return fmt.Errorf("fee denom cannot be empty")
 	}
 
 	return nil

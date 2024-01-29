@@ -111,28 +111,25 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().Equal(resp.Fee, fees)
 	})
 
-	// TODO: fix test, after adding update to state
-	// s.Run("can get updated base fee", func() {
-	// 	state := types.State{
-	// 		BaseFee: math.OneInt(),
-	// 	}
-	// 	err := s.feeMarketKeeper.SetState(s.ctx, state)
-	// 	s.Require().NoError(err)
+	s.Run("can get updated base fee", func() {
+		state, err := s.feeMarketKeeper.GetState(s.ctx, types.DefaultFeeDenom)
+		s.Require().NoError(err)
 
-	// 	params := types.Params{
-	// 		FeeDenom: "test",
-	// 	}
-	// 	err = s.feeMarketKeeper.SetParams(s.ctx, params)
-	// 	s.Require().NoError(err)
+		state.BaseFee = math.LegacyOneDec()
 
-	// 	req := &types.BaseFeeRequest{}
-	// 	resp, err := s.queryServer.BaseFee(s.ctx, req)
-	// 	s.Require().NoError(err)
-	// 	s.Require().NotNil(resp)
+		err = s.feeMarketKeeper.SetState(s.ctx, state)
+		s.Require().NoError(err)
 
-	// 	fees, err := s.feeMarketKeeper.GetMinGasPrices(s.ctx)
-	// 	s.Require().NoError(err)
+		req := &types.BaseFeeRequest{
+			FeeDenom: types.DefaultFeeDenom,
+		}
+		resp, err := s.queryServer.BaseFee(s.ctx, req)
+		s.Require().NoError(err)
+		s.Require().NotNil(resp)
 
-	// 	s.Require().Equal(resp.Fees, fees)
-	// })
+		fee, err := s.feeMarketKeeper.GetMinGasPrice(s.ctx, types.DefaultFeeDenom)
+		s.Require().NoError(err)
+
+		s.Require().Equal(resp.Fee, fee)
+	})
 }

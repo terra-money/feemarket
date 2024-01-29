@@ -53,6 +53,10 @@ func (ms MsgServer) State(goCtx context.Context, msg *types.MsgState) (*types.Ms
 	}
 
 	state := msg.State
+	if err := state.ValidateBasic(); err != nil {
+		return nil, fmt.Errorf("invalid state: %w", err)
+	}
+
 	if err := ms.k.SetState(ctx, state); err != nil {
 		return nil, fmt.Errorf("error setting state for %s: %w", state.FeeDenom, err)
 	}

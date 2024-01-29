@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
@@ -40,31 +41,41 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		s.Require().Error(err)
 	})
 
-	// TODO: fix test, Param no longer update state
-	// s.Run("resets state after new params request", func() {
-	// 	params, err := s.feeMarketKeeper.GetParams(s.ctx)
-	// 	s.Require().NoError(err)
+	s.Run("rejects a req with no state", func() {
+		req := &types.MsgState{
+			Authority: s.authorityAccount.String(),
+		}
+		_, err := s.msgServer.State(s.ctx, req)
+		s.Require().Error(err)
+	})
 
-	// 	state, err := s.feeMarketKeeper.GetState(s.ctx)
-	// 	s.Require().NoError(err)
+	s.Run("rejects a req with state that has no feeDenom", func() {
+		state := types.DefaultState()[0]
+		state.FeeDenom = ""
+		req := &types.MsgState{
+			Authority: s.authorityAccount.String(),
+			State:     state,
+		}
+		_, err := s.msgServer.State(s.ctx, req)
+		s.Require().Error(err)
+	})
 
-	// 	err = state.Update(params.MaxBlockUtilization, params)
-	// 	s.Require().NoError(err)
+	s.Run("rejects a req with state that has no feeDenom", func() {
+		reqState := types.DefaultState()[0]
+		feeDenom := reqState.FeeDenom
 
-	// 	err = s.feeMarketKeeper.SetState(s.ctx, state)
-	// 	s.Require().NoError(err)
+		reqState.MinBaseFee = sdkmath.LegacyNewDec(2)
+		reqState.BaseFee = reqState.MinBaseFee
 
-	// 	params.Window = 100
-	// 	req := &types.MsgParams{
-	// 		Authority: s.authorityAccount.String(),
-	// 		Params:    params,
-	// 	}
-	// 	_, err = s.msgServer.Params(s.ctx, req)
-	// 	s.Require().NoError(err)
+		req := &types.MsgState{
+			Authority: s.authorityAccount.String(),
+			State:     reqState,
+		}
+		_, err := s.msgServer.State(s.ctx, req)
+		s.Require().NoError(err)
 
-	// 	state, err = s.feeMarketKeeper.GetState(s.ctx)
-	// 	s.Require().NoError(err)
-	// 	s.Require().Equal(params.Window, uint64(len(state.Window)))
-	// 	s.Require().Equal(state.Window[0], uint64(0))
-	// })
+		state, err := s.feeMarketKeeper.GetState(s.ctx, feeDenom)
+		s.Require().NoError(err)
+		s.Require().Equal(state, reqState)
+	})
 }
