@@ -168,8 +168,8 @@ func (s *State) ValidateBasic() error {
 		return fmt.Errorf("min base fee must be positive")
 	}
 
-	if s.BaseFee.IsNil() || s.BaseFee.LT(s.MinBaseFee) {
-		return fmt.Errorf("base fee must be >= than min base fee")
+	if s.BaseFee.IsNil() || s.BaseFee.LT(math.LegacyZeroDec()) {
+		return fmt.Errorf("base fee must be positive")
 	}
 
 	if s.LearningRate.IsNil() || s.LearningRate.LTE(math.LegacyZeroDec()) {

@@ -861,8 +861,11 @@ func TestState_ValidateBasic(t *testing.T) {
 		{
 			name: "invalid negative base fee",
 			state: types.State{
-				Window:  make([]uint64, 1),
-				BaseFee: math.LegacyNewDec(-1),
+				Window:       make([]uint64, 1),
+				BaseFee:      math.LegacyNewDec(-1),
+				MinBaseFee:   math.LegacyNewDec(-1),
+				LearningRate: math.LegacyMustNewDecFromStr("0.5"),
+				FeeDenom:     "test",
 			},
 			expectErr: true,
 		},
@@ -871,7 +874,9 @@ func TestState_ValidateBasic(t *testing.T) {
 			state: types.State{
 				Window:       make([]uint64, 1),
 				BaseFee:      math.LegacyNewDec(1),
+				MinBaseFee:   math.LegacyNewDec(1),
 				LearningRate: math.LegacyMustNewDecFromStr("-1.0"),
+				FeeDenom:     "test",
 			},
 			expectErr: true,
 		},
@@ -880,7 +885,9 @@ func TestState_ValidateBasic(t *testing.T) {
 			state: types.State{
 				Window:       make([]uint64, 1),
 				BaseFee:      math.LegacyNewDec(1),
+				MinBaseFee:   math.LegacyNewDec(1),
 				LearningRate: math.LegacyMustNewDecFromStr("0.5"),
+				FeeDenom:     "test",
 			},
 			expectErr: false,
 		},
@@ -889,7 +896,9 @@ func TestState_ValidateBasic(t *testing.T) {
 			state: types.State{
 				Window:       make([]uint64, 1),
 				BaseFee:      math.LegacyZeroDec(),
+				MinBaseFee:   math.LegacyZeroDec(),
 				LearningRate: math.LegacyMustNewDecFromStr("0.5"),
+				FeeDenom:     "test",
 			},
 			expectErr: true,
 		},
@@ -898,7 +907,9 @@ func TestState_ValidateBasic(t *testing.T) {
 			state: types.State{
 				Window:       make([]uint64, 1),
 				BaseFee:      math.LegacyNewDec(1),
+				MinBaseFee:   math.LegacyNewDec(1),
 				LearningRate: math.LegacyZeroDec(),
+				FeeDenom:     "test",
 			},
 			expectErr: true,
 		},
