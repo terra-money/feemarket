@@ -22,14 +22,14 @@ service Query {
   // State returns the current feemarket module state.
   rpc State(StateRequest) returns (StateResponse) {
     option (google.api.http) = {
-      get : "/feemarket/v1/state"
+      get : "/feemarket/v1/state/{fee_denom}"
     };
   };
 
   // BaseFee returns the current feemarket module base fee.
   rpc BaseFee(BaseFeeRequest) returns (BaseFeeResponse) {
     option (google.api.http) = {
-      get : "/feemarket/v1/base_fee"
+      get : "/feemarket/v1/base_fee/{fee_denom}"
     };
   };
 }
