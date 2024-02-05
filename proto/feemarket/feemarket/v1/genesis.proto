@@ -15,13 +15,15 @@ message GenesisState {
   Params params = 1 [ (gogoproto.nullable) = false ];
 
   // States contains the current states of the AIMD fee market for all FeeDenom.
-  repeated State states = 2 [ (gogoproto.nullable) = false ];
+  State states = 2 [ (gogoproto.nullable) = false ];
+
+  // FeeDenomParams contains the current state of the fee denom.
+  repeated FeeDenomParam fee_denom_params = 3 [ (gogoproto.nullable) = false ];
 }
 
-// State is utilized to track the current state of the fee market. This includes
-// the current base fee, learning rate, and block utilization within the
-// specified AIMD window.
-message State {
+// FeeDenomParam is utilized to track the current state of the fee denom. This includes
+// the current base fee, min base fee.
+message FeeDenomParam {
   // FeeDenom is the denom that will be used for all fee payments.
   string fee_denom = 1;
 
@@ -40,9 +42,15 @@ message State {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+}
 
+
+// State is utilized to track the current state of the fee market. This includes
+// the current learning rate, and block utilization within the
+// specified AIMD window.
+message State {
   // LearningRate is the current learning rate.
-  string learning_rate = 4 [
+  string learning_rate = 1 [
     (cosmos_proto.scalar) = "cosmos.Legacy",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -51,8 +59,8 @@ message State {
   // Window contains a list of the last blocks' utilization values. This is used
   // to calculate the next base fee. This stores the number of units of gas
   // consumed per block.
-  repeated uint64 window = 5;
+  repeated uint64 window = 2;
 
   // Index is the index of the current block in the block utilization window.
-  uint64 index = 6;
+  uint64 index = 3;
 }
