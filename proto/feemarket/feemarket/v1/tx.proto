@@ -18,7 +18,7 @@ service Msg {
   rpc Params(MsgParams) returns (MsgParamsResponse);
 
   // State defines a method for updating the feemarket module states.
-  rpc State(MsgState) returns (MsgStateResponse);
+  rpc FeeDenomParam(MsgFeeDenomParam) returns (MsgFeeDenomParamResponse);
 }
 
 // MsgParams defines the Msg/Params request type. It contains the
@@ -36,17 +36,17 @@ message MsgParams {
 // MsgParamsResponse defines the Msg/Params response type.
 message MsgParamsResponse {}
 
-// MsgState defines the Msg/State request type. It contains the
-// new state of feeDenom for the feemarket module.
-message MsgState {
+// MsgFeeDenomParam defines the Msg/FeeDenomParam request type. It contains the
+// new feeDenomParam of feeDenom for the feemarket module.
+message MsgFeeDenomParam {
   option (cosmos.msg.v1.signer) = "authority";
 
   // State defines the new state for the feemarket module.
-  State state = 1 [ (gogoproto.nullable) = false ];
+  FeeDenomParam fee_denom_param = 1 [ (gogoproto.nullable) = false ];
   // Authority defines the authority that is updating the feemarket module
   // parameters.
   string authority = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 }
 
-// MsgStateResponse defines the Msg/State response type.
-message MsgStateResponse {}
+// MsgFeeDenomParamResponse defines the Msg/State response type.
+message MsgFeeDenomParamResponse {}

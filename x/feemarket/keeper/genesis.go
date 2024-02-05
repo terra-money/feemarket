@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/skip-mev/feemarket/x/feemarket/types"
@@ -14,22 +12,21 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) {
 		panic(err)
 	}
 
-	for _, state := range gs.States {
-		if gs.Params.Window != uint64(len(state.Window)) {
-			panic(fmt.Sprintf("genesis state and parameters do not match for window for denom: %s", state.FeeDenom))
-		}
-	}
-
 	// Initialize the fee market state and parameters.
 	if err := k.SetParams(ctx, gs.Params); err != nil {
 		panic(err)
 	}
 
-	for _, state := range gs.States {
-		if err := k.SetState(ctx, state); err != nil {
+	if err := k.SetState(ctx, gs.State); err != nil {
+		panic(err)
+	}
+
+	for _, fdp := range gs.FeeDenomParams {
+		if err := k.SetFeeDenomParam(ctx, fdp); err != nil {
 			panic(err)
 		}
 	}
+
 }
 
 // ExportGenesis returns a GenesisState for a given context.
@@ -41,10 +38,16 @@ func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	}
 
 	// Get the feemarket module's state.
-	states, err := k.GetStates(ctx)
+	state, err := k.GetState(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	return types.NewGenesisState(params, states)
+	// Get the feemarket module's fee denom parameters.
+	fdps, err := k.GetFeeDenomParams(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	return types.NewGenesisState(params, state, fdps)
 }

@@ -22,7 +22,14 @@ service Query {
   // State returns the current feemarket module state.
   rpc State(StateRequest) returns (StateResponse) {
     option (google.api.http) = {
-      get : "/feemarket/v1/state/{fee_denom}"
+      get : "/feemarket/v1/state"
+    };
+  };
+
+  // State returns the feeDenomParam of feeDenom.
+  rpc FeeDenomParam(FeeDenomParamRequest) returns (FeeDenomParamResponse) {
+    option (google.api.http) = {
+      get : "/feemarket/v1/fee_denom_param/{fee_denom}"
     };
   };
 
@@ -41,12 +48,18 @@ message ParamsRequest {}
 message ParamsResponse { Params params = 1 [ (gogoproto.nullable) = false ]; }
 
 // StateRequest is the request type for the Query/State RPC method.
-message StateRequest {
+message StateRequest {}
+
+// StateResponse is the response type for the Query/State RPC method.
+message StateResponse { State state = 1 [ (gogoproto.nullable) = false ]; }
+
+// FeeDenomParamRequest is the request type for the Query/State RPC method.
+message FeeDenomParamRequest {
   string fee_denom = 1;
 }
 
-// StateResponse is the response type for the Query/State RPC method.
-message StateResponse { repeated State states = 1 [ (gogoproto.nullable) = false ]; }
+// FeeDenomParamResponse is the response type for the Query/State RPC method.
+message FeeDenomParamResponse { repeated FeeDenomParam fee_denom_params = 1 [ (gogoproto.nullable) = false ]; }
 
 // BaseFeeRequest is the request type for the Query/BaseFee RPC method.
 message BaseFeeRequest {

@@ -9,11 +9,13 @@ import (
 // NewGenesisState returns a new genesis state for the module.
 func NewGenesisState(
 	params Params,
-	states []State,
+	state State,
+	feeDenomParams []FeeDenomParam,
 ) *GenesisState {
 	return &GenesisState{
-		Params: params,
-		States: states,
+		Params:         params,
+		State:          state,
+		FeeDenomParams: feeDenomParams,
 	}
 }
 
@@ -23,9 +25,11 @@ func (gs *GenesisState) ValidateBasic() error {
 	if err := gs.Params.ValidateBasic(); err != nil {
 		return err
 	}
-	// run gs.State.ValidateBasic() for each element in gs.States
-	for _, state := range gs.States {
-		if err := state.ValidateBasic(); err != nil {
+	if err := gs.State.ValidateBasic(); err != nil {
+		return err
+	}
+	for _, fdp := range gs.FeeDenomParams {
+		if err := fdp.ValidateBasic(); err != nil {
 			return err
 		}
 	}

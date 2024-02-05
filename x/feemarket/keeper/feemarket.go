@@ -20,59 +20,68 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 		return nil
 	}
 
-	states, err := k.GetStates(ctx)
+	state, err := k.GetState(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	// Update the learning rate based on the block utilization seen in the
+	// current block. This is the AIMD learning rate adjustment algorithm.
+	newLR := state.UpdateLearningRate(
+		params,
+	)
+
+	// Increment the height of the state and set the new state.
+	state.IncrementHeight()
+	if err := k.SetState(ctx, state); err != nil {
+		return err
+	}
+
+	k.Logger(ctx).Info(
+		"updated the fee market state",
+		"height", ctx.BlockHeight(),
+		"new_learning_rate", newLR,
+		"average_block_utilization", state.GetAverageUtilization(params),
+		"net_block_utilization", state.GetNetUtilization(params),
+	)
+
+	fdps, err := k.GetFeeDenomParams(ctx)
 	if err != nil {
 		return err
 	}
 
-	for _, state := range states {
-		// Skip updating the fee market if the state has already been updated through MsgState
-		if k.updatedStateMap[state.FeeDenom] {
-			continue
-		}
-
-		// Update the learning rate based on the block utilization seen in the
-		// current block. This is the AIMD learning rate adjustment algorithm.
-		newLR := state.UpdateLearningRate(
-			params,
-		)
-
+	for _, fdp := range fdps {
 		// Update the base fee based with the new learning rate and delta adjustment.
-		newBaseFee := state.UpdateBaseFee(params)
+		newBaseFee := fdp.UpdateBaseFee(params, state)
 
 		k.Logger(ctx).Info(
-			"updated the fee market",
+			"updated the feeDenomParam",
 			"height", ctx.BlockHeight(),
-			"denom", state.FeeDenom,
+			"denom", fdp.FeeDenom,
 			"new_base_fee", newBaseFee,
-			"new_learning_rate", newLR,
-			"average_block_utilization", state.GetAverageUtilization(params),
-			"net_block_utilization", state.GetNetUtilization(params),
 		)
 
-		// Increment the height of the state and set the new state.
-		state.IncrementHeight()
-		if err := k.SetState(ctx, state); err != nil {
+		// Set the new feeDenomParam.
+		if err := k.SetFeeDenomParam(ctx, fdp); err != nil {
 			return err
 		}
 	}
-	k.updatedStateMap = make(map[string]bool)
 	return nil
 }
 
 // GetBaseFee returns the base fee from the fee market state.
 func (k *Keeper) GetBaseFee(ctx sdk.Context, feeDenom string) (math.LegacyDec, error) {
-	state, err := k.GetState(ctx, feeDenom)
+	fdp, err := k.GetFeeDenomParam(ctx, feeDenom)
 	if err != nil {
 		return math.LegacyDec{}, err
 	}
 
-	return state.BaseFee, nil
+	return fdp.BaseFee, nil
 }
 
 // GetLearningRate returns the learning rate from the fee market state.
-func (k *Keeper) GetLearningRate(ctx sdk.Context, feeDenom string) (math.LegacyDec, error) {
-	state, err := k.GetState(ctx, feeDenom)
+func (k *Keeper) GetLearningRate(ctx sdk.Context) (math.LegacyDec, error) {
+	state, err := k.GetState(ctx)
 	if err != nil {
 		return math.LegacyDec{}, err
 	}

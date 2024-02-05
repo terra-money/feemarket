@@ -85,21 +85,27 @@ func DefaultAIMDParams() Params {
 // implementation. This implementation uses a sliding window to track the
 // block utilization and dynamically adjusts the learning rate based on the
 // utilization within the window.
-func DefaultAIMDState() []State {
-	return []State{
-		NewState(
-			AIMDTestFeeDenom,
-			DefaultAIMDWindow,
+func DefaultAIMDState() State {
+	return NewState(
+		DefaultAIMDWindow,
+		DefaultAIMDMinLearningRate,
+		DefaultIndex,
+	)
+}
+
+// DefaultFeeDenomParam returns the default state for the EIP-1559 fee market
+// implementation without the AIMD learning rate adjustment algorithm.
+func DefaultAIMDFeeDenomParam() []FeeDenomParam {
+	return []FeeDenomParam{
+		NewFeeDenomParam(
+			TestFeeDenom,
 			DefaultAIMDMinBaseFee,
 			DefaultAIMDMinBaseFee,
-			DefaultAIMDMinLearningRate,
 		),
-		NewState(
-			DefaultAIMDFeeDenom,
-			DefaultAIMDWindow,
-			DefaultAIMDMinBaseFee,
-			DefaultAIMDMinBaseFee,
-			DefaultAIMDMinLearningRate,
+		NewFeeDenomParam(
+			DefaultFeeDenom,
+			math.LegacyMustNewDecFromStr("0.0015"),
+			math.LegacyMustNewDecFromStr("0.0015"),
 		),
 	}
 }
@@ -107,5 +113,5 @@ func DefaultAIMDState() []State {
 // DefaultAIMDGenesisState returns a default genesis state that implements
 // the AIMD EIP-1559 fee market implementation.
 func DefaultAIMDGenesisState() *GenesisState {
-	return NewGenesisState(DefaultAIMDParams(), DefaultAIMDState())
+	return NewGenesisState(DefaultAIMDParams(), DefaultAIMDState(), DefaultFeeDenomParam())
 }

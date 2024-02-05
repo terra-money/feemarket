@@ -32,13 +32,21 @@ func (q QueryServer) Params(goCtx context.Context, _ *types.ParamsRequest) (*typ
 func (q QueryServer) State(goCtx context.Context, query *types.StateRequest) (*types.StateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	state, err := q.k.GetState(ctx)
+	return &types.StateResponse{State: state}, err
+}
+
+// State defines a method that returns the current feemarket states. If feeDenom is nil, return all states
+func (q QueryServer) FeeDenomParam(goCtx context.Context, query *types.FeeDenomParamRequest) (*types.FeeDenomParamResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	if query.FeeDenom == "" {
-		states, err := q.k.GetStates(ctx)
-		return &types.StateResponse{States: states}, err
+		fdps, err := q.k.GetFeeDenomParams(ctx)
+		return &types.FeeDenomParamResponse{FeeDenomParams: fdps}, err
 	}
 
-	state, err := q.k.GetState(ctx, query.FeeDenom)
-	return &types.StateResponse{States: []types.State{state}}, err
+	fdp, err := q.k.GetFeeDenomParam(ctx, query.FeeDenom)
+	return &types.FeeDenomParamResponse{FeeDenomParams: []types.FeeDenomParam{fdp}}, err
 }
 
 // BaseFee defines a method that returns the current feemarket base fee.

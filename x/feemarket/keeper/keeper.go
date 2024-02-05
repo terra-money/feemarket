@@ -20,10 +20,6 @@ type Keeper struct {
 	// The address that is capable of executing a MsgParams message.
 	// Typically, this will be the governance module's address.
 	authority string
-
-	// Map of feeDenom to bool of if the state has been updated through a MsgState message this block
-	// This is used to prevent updating of the state again in the endblocker
-	updatedStateMap map[string]bool
 }
 
 // NewKeeper constructs a new feemarket keeper.
@@ -42,7 +38,6 @@ func NewKeeper(
 		storeKey,
 		authKeeper,
 		authority,
-		make(map[string]bool),
 	}
 
 	return k
@@ -58,49 +53,79 @@ func (k *Keeper) GetAuthority() string {
 	return k.authority
 }
 
-// GetState returns the feemarket module's state.
-func (k *Keeper) GetState(ctx sdk.Context, feeDenom string) (types.State, error) {
+// GetFeeDenomParam returns the feeDenomParam for feeDenom.
+func (k *Keeper) GetFeeDenomParam(ctx sdk.Context, feeDenom string) (types.FeeDenomParam, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	key := types.GetKeyPrefixState(feeDenom)
+	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
 	bz := store.Get(key)
 
-	state := types.State{}
+	fdp := types.FeeDenomParam{}
 	if bz == nil {
-		return state, sdkerrors.ErrKeyNotFound.Wrapf("state not found for feeDenom: %s", feeDenom)
+		return fdp, sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
 	}
 
-	if err := state.Unmarshal(bz); err != nil {
-		return state, err
+	if err := fdp.Unmarshal(bz); err != nil {
+		return fdp, err
 	}
 
-	return state, nil
+	return fdp, nil
 }
 
-// GetStateIter returns an iterator for all feemarket module's states.
-func (k *Keeper) GetStateIter(ctx sdk.Context) sdk.Iterator {
+// GetFeeDenomParamIter returns an iterator for all fee denom feeDenomParam.
+func (k *Keeper) GetFeeDenomParamIter(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.storeKey)
 
-	return sdk.KVStorePrefixIterator(store, types.KeyPrefixState)
+	return sdk.KVStorePrefixIterator(store, types.KeyPrefixFeeDenomParam)
 }
 
-// GetStates returns all feemarket module's states.
-func (k *Keeper) GetStates(ctx sdk.Context) ([]types.State, error) {
-	iter := k.GetStateIter(ctx)
+// GetFeeDenomParams returns all feemarket feeDenomParams.
+func (k *Keeper) GetFeeDenomParams(ctx sdk.Context) ([]types.FeeDenomParam, error) {
+	iter := k.GetFeeDenomParamIter(ctx)
 	defer iter.Close()
 
-	var states []types.State
+	var fdps []types.FeeDenomParam
 
 	for ; iter.Valid(); iter.Next() {
-		state := types.State{}
-		if err := state.Unmarshal(iter.Value()); err != nil {
+		fdp := types.FeeDenomParam{}
+		if err := fdp.Unmarshal(iter.Value()); err != nil {
 			return nil, err
 		}
 
-		states = append(states, state)
+		fdps = append(fdps, fdp)
 	}
 
-	return states, nil
+	return fdps, nil
+}
+
+// SetFeeDenomParam sets the feeDenomParam for feeDenom.
+func (k *Keeper) SetFeeDenomParam(ctx sdk.Context, fdp types.FeeDenomParam) error {
+	store := ctx.KVStore(k.storeKey)
+
+	key := types.GetKeyPrefixFeeDenomParam(fdp.FeeDenom)
+	bz, err := fdp.Marshal()
+	if err != nil {
+		return err
+	}
+
+	store.Set(key, bz)
+
+	return nil
+}
+
+// GetState returns the feemarket module's state.
+func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
+	store := ctx.KVStore(k.storeKey)
+
+	key := types.KeyState
+	bz := store.Get(key)
+
+	state := types.State{}
+	if err := state.Unmarshal(bz); err != nil {
+		return types.State{}, err
+	}
+
+	return state, nil
 }
 
 // SetState sets the feemarket module's state.
@@ -112,7 +137,7 @@ func (k *Keeper) SetState(ctx sdk.Context, state types.State) error {
 		return err
 	}
 
-	store.Set(types.GetKeyPrefixState(state.FeeDenom), bz)
+	store.Set(types.KeyState, bz)
 
 	return nil
 }

@@ -45,22 +45,21 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 
 // State defines a method that updates the module's state for a feeDenom. The signer of the message must
 // be the module authority.
-func (ms MsgServer) State(goCtx context.Context, msg *types.MsgState) (*types.MsgStateResponse, error) {
+func (ms MsgServer) FeeDenomParam(goCtx context.Context, msg *types.MsgFeeDenomParam) (*types.MsgFeeDenomParamResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.Authority != ms.k.GetAuthority() {
 		return nil, fmt.Errorf("invalid authority to execute message")
 	}
 
-	state := msg.State
-	if err := state.ValidateBasic(); err != nil {
-		return nil, fmt.Errorf("invalid state: %w", err)
+	fdp := msg.FeeDenomParam
+	if err := fdp.ValidateBasic(); err != nil {
+		return nil, fmt.Errorf("invalid feeDenomParam: %w", err)
 	}
 
-	if err := ms.k.SetState(ctx, state); err != nil {
-		return nil, fmt.Errorf("error setting state for %s: %w", state.FeeDenom, err)
+	if err := ms.k.SetFeeDenomParam(ctx, fdp); err != nil {
+		return nil, err
 	}
-	ms.k.updatedStateMap[state.FeeDenom] = true
 
-	return &types.MsgStateResponse{}, nil
+	return &types.MsgFeeDenomParamResponse{}, nil
 }

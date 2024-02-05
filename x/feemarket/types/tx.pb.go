@@ -124,28 +124,28 @@ func (m *MsgParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgParamsResponse proto.InternalMessageInfo
 
-// MsgState defines the Msg/State request type. It contains the
-// new state of feeDenom for the feemarket module.
-type MsgState struct {
+// MsgFeeDenomParam defines the Msg/FeeDenomParam request type. It contains the
+// new feeDenomParam of feeDenom for the feemarket module.
+type MsgFeeDenomParam struct {
 	// State defines the new state for the feemarket module.
-	State State `protobuf:"bytes,1,opt,name=state,proto3" json:"state"`
+	FeeDenomParam FeeDenomParam `protobuf:"bytes,1,opt,name=fee_denom_param,json=feeDenomParam,proto3" json:"fee_denom_param"`
 	// Authority defines the authority that is updating the feemarket module
 	// parameters.
 	Authority string `protobuf:"bytes,2,opt,name=authority,proto3" json:"authority,omitempty"`
 }
 
-func (m *MsgState) Reset()         { *m = MsgState{} }
-func (m *MsgState) String() string { return proto.CompactTextString(m) }
-func (*MsgState) ProtoMessage()    {}
-func (*MsgState) Descriptor() ([]byte, []int) {
+func (m *MsgFeeDenomParam) Reset()         { *m = MsgFeeDenomParam{} }
+func (m *MsgFeeDenomParam) String() string { return proto.CompactTextString(m) }
+func (*MsgFeeDenomParam) ProtoMessage()    {}
+func (*MsgFeeDenomParam) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1bbf67a633e47917, []int{2}
 }
-func (m *MsgState) XXX_Unmarshal(b []byte) error {
+func (m *MsgFeeDenomParam) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgFeeDenomParam) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgState.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgFeeDenomParam.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -155,48 +155,48 @@ func (m *MsgState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *MsgState) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgState.Merge(m, src)
+func (m *MsgFeeDenomParam) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFeeDenomParam.Merge(m, src)
 }
-func (m *MsgState) XXX_Size() int {
+func (m *MsgFeeDenomParam) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgState) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgState.DiscardUnknown(m)
+func (m *MsgFeeDenomParam) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFeeDenomParam.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgState proto.InternalMessageInfo
+var xxx_messageInfo_MsgFeeDenomParam proto.InternalMessageInfo
 
-func (m *MsgState) GetState() State {
+func (m *MsgFeeDenomParam) GetFeeDenomParam() FeeDenomParam {
 	if m != nil {
-		return m.State
+		return m.FeeDenomParam
 	}
-	return State{}
+	return FeeDenomParam{}
 }
 
-func (m *MsgState) GetAuthority() string {
+func (m *MsgFeeDenomParam) GetAuthority() string {
 	if m != nil {
 		return m.Authority
 	}
 	return ""
 }
 
-// MsgStateResponse defines the Msg/State response type.
-type MsgStateResponse struct {
+// MsgFeeDenomParamResponse defines the Msg/State response type.
+type MsgFeeDenomParamResponse struct {
 }
 
-func (m *MsgStateResponse) Reset()         { *m = MsgStateResponse{} }
-func (m *MsgStateResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgStateResponse) ProtoMessage()    {}
-func (*MsgStateResponse) Descriptor() ([]byte, []int) {
+func (m *MsgFeeDenomParamResponse) Reset()         { *m = MsgFeeDenomParamResponse{} }
+func (m *MsgFeeDenomParamResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgFeeDenomParamResponse) ProtoMessage()    {}
+func (*MsgFeeDenomParamResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1bbf67a633e47917, []int{3}
 }
-func (m *MsgStateResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgFeeDenomParamResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgStateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgFeeDenomParamResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgStateResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgFeeDenomParamResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -206,29 +206,29 @@ func (m *MsgStateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *MsgStateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgStateResponse.Merge(m, src)
+func (m *MsgFeeDenomParamResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFeeDenomParamResponse.Merge(m, src)
 }
-func (m *MsgStateResponse) XXX_Size() int {
+func (m *MsgFeeDenomParamResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgStateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgStateResponse.DiscardUnknown(m)
+func (m *MsgFeeDenomParamResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFeeDenomParamResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgStateResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgFeeDenomParamResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*MsgParams)(nil), "feemarket.feemarket.v1.MsgParams")
 	proto.RegisterType((*MsgParamsResponse)(nil), "feemarket.feemarket.v1.MsgParamsResponse")
-	proto.RegisterType((*MsgState)(nil), "feemarket.feemarket.v1.MsgState")
-	proto.RegisterType((*MsgStateResponse)(nil), "feemarket.feemarket.v1.MsgStateResponse")
+	proto.RegisterType((*MsgFeeDenomParam)(nil), "feemarket.feemarket.v1.MsgFeeDenomParam")
+	proto.RegisterType((*MsgFeeDenomParamResponse)(nil), "feemarket.feemarket.v1.MsgFeeDenomParamResponse")
 }
 
 func init() { proto.RegisterFile("feemarket/feemarket/v1/tx.proto", fileDescriptor_1bbf67a633e47917) }
 
 var fileDescriptor_1bbf67a633e47917 = []byte{
-	// 386 bytes of a gzipped FileDescriptorProto
+	// 401 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4f, 0x4b, 0x4d, 0xcd,
 	0x4d, 0x2c, 0xca, 0x4e, 0x2d, 0xd1, 0x47, 0xb0, 0xca, 0x0c, 0xf5, 0x4b, 0x2a, 0xf4, 0x0a, 0x8a,
 	0xf2, 0x4b, 0xf2, 0x85, 0xc4, 0xe0, 0xc2, 0x7a, 0x08, 0x56, 0x99, 0xa1, 0x94, 0x32, 0x0e, 0x8d,
@@ -242,18 +242,19 @@ var fileDescriptor_1bbf67a633e47917 = []byte{
 	0x54, 0x4a, 0x30, 0x29, 0x30, 0x6a, 0x70, 0x3a, 0x49, 0x5c, 0xda, 0xa2, 0x2b, 0x02, 0x75, 0x9f,
 	0x63, 0x4a, 0x4a, 0x51, 0x6a, 0x71, 0x71, 0x70, 0x49, 0x51, 0x66, 0x5e, 0x7a, 0x10, 0x42, 0xa9,
 	0x15, 0x5f, 0xd3, 0xf3, 0x0d, 0x5a, 0x08, 0xbe, 0x92, 0x30, 0x97, 0x20, 0xdc, 0x49, 0x41, 0xa9,
-	0xc5, 0x05, 0xf9, 0x79, 0xc5, 0xa9, 0x4a, 0xbd, 0x8c, 0x5c, 0x1c, 0xbe, 0xc5, 0xe9, 0xc1, 0x25,
-	0x89, 0x25, 0xa9, 0x42, 0x96, 0x5c, 0xac, 0xc5, 0x20, 0x06, 0xd4, 0x99, 0xb2, 0xb8, 0x9c, 0x09,
-	0x56, 0x0d, 0x75, 0x25, 0x44, 0x07, 0xd5, 0x1c, 0x29, 0xc4, 0x25, 0x00, 0x73, 0x0e, 0xcc, 0x8d,
-	0x46, 0x3b, 0x19, 0xb9, 0x98, 0x7d, 0x8b, 0xd3, 0x85, 0xc2, 0xb8, 0xd8, 0xa0, 0x01, 0xaa, 0x88,
-	0xcb, 0x65, 0x70, 0x0f, 0x4a, 0x69, 0x12, 0x54, 0x02, 0x33, 0x5f, 0x28, 0x98, 0x8b, 0x15, 0xe2,
-	0x7f, 0x05, 0x3c, 0x7a, 0xc0, 0x2a, 0xa4, 0x34, 0x08, 0xa9, 0x80, 0x19, 0x2a, 0xc5, 0xda, 0xf0,
-	0x7c, 0x83, 0x16, 0xa3, 0x93, 0xe7, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78,
-	0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44,
-	0xe9, 0xa7, 0x67, 0x96, 0x64, 0x94, 0x26, 0xe9, 0x25, 0xe7, 0xe7, 0xea, 0x17, 0x67, 0x67, 0x16,
-	0xe8, 0xe6, 0xa6, 0x96, 0x21, 0x25, 0xce, 0x0a, 0x24, 0x76, 0x49, 0x65, 0x41, 0x6a, 0x71, 0x12,
-	0x1b, 0x38, 0x69, 0x19, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x1a, 0x99, 0x6e, 0x30, 0x2a, 0x03,
-	0x00, 0x00,
+	0xc5, 0x05, 0xf9, 0x79, 0xc5, 0xa9, 0x4a, 0xeb, 0x19, 0xb9, 0x04, 0x7c, 0x8b, 0xd3, 0xdd, 0x52,
+	0x53, 0x5d, 0x52, 0xf3, 0xf2, 0x73, 0xc1, 0xb2, 0x42, 0xc1, 0x5c, 0xfc, 0x69, 0xa9, 0xa9, 0xf1,
+	0x29, 0x20, 0x91, 0x78, 0xb0, 0x2b, 0xa0, 0x0e, 0x57, 0xc5, 0xe5, 0x70, 0x14, 0xfd, 0x50, 0xf7,
+	0xf3, 0xa6, 0xa1, 0x18, 0x4a, 0x2d, 0x6f, 0x48, 0x71, 0x49, 0xa0, 0x3b, 0x18, 0xe6, 0x1b, 0xa3,
+	0x8b, 0x8c, 0x5c, 0xcc, 0xbe, 0xc5, 0xe9, 0x42, 0x61, 0x5c, 0x6c, 0xd0, 0xa0, 0x57, 0xc4, 0xe5,
+	0x62, 0x78, 0x50, 0x48, 0x69, 0x12, 0x54, 0x02, 0x33, 0x5f, 0x28, 0x9b, 0x8b, 0x17, 0x35, 0xa4,
+	0x34, 0xf0, 0xe8, 0x45, 0x51, 0x29, 0x65, 0x40, 0xac, 0x4a, 0x98, 0x65, 0x52, 0xac, 0x0d, 0xcf,
+	0x37, 0x68, 0x31, 0x3a, 0x79, 0x9e, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47,
+	0x72, 0x8c, 0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c, 0x43, 0x94,
+	0x7e, 0x7a, 0x66, 0x49, 0x46, 0x69, 0x92, 0x5e, 0x72, 0x7e, 0xae, 0x7e, 0x71, 0x76, 0x66, 0x81,
+	0x6e, 0x6e, 0x6a, 0x19, 0x52, 0xf2, 0xae, 0x40, 0x62, 0x97, 0x54, 0x16, 0xa4, 0x16, 0x27, 0xb1,
+	0x81, 0x13, 0xa7, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0xfa, 0xb9, 0x1f, 0xbd, 0x6c, 0x03, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -271,7 +272,7 @@ type MsgClient interface {
 	// Params defines a method for updating the feemarket module parameters.
 	Params(ctx context.Context, in *MsgParams, opts ...grpc.CallOption) (*MsgParamsResponse, error)
 	// State defines a method for updating the feemarket module states.
-	State(ctx context.Context, in *MsgState, opts ...grpc.CallOption) (*MsgStateResponse, error)
+	FeeDenomParam(ctx context.Context, in *MsgFeeDenomParam, opts ...grpc.CallOption) (*MsgFeeDenomParamResponse, error)
 }
 
 type msgClient struct {
@@ -291,9 +292,9 @@ func (c *msgClient) Params(ctx context.Context, in *MsgParams, opts ...grpc.Call
 	return out, nil
 }
 
-func (c *msgClient) State(ctx context.Context, in *MsgState, opts ...grpc.CallOption) (*MsgStateResponse, error) {
-	out := new(MsgStateResponse)
-	err := c.cc.Invoke(ctx, "/feemarket.feemarket.v1.Msg/State", in, out, opts...)
+func (c *msgClient) FeeDenomParam(ctx context.Context, in *MsgFeeDenomParam, opts ...grpc.CallOption) (*MsgFeeDenomParamResponse, error) {
+	out := new(MsgFeeDenomParamResponse)
+	err := c.cc.Invoke(ctx, "/feemarket.feemarket.v1.Msg/FeeDenomParam", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -305,7 +306,7 @@ type MsgServer interface {
 	// Params defines a method for updating the feemarket module parameters.
 	Params(context.Context, *MsgParams) (*MsgParamsResponse, error)
 	// State defines a method for updating the feemarket module states.
-	State(context.Context, *MsgState) (*MsgStateResponse, error)
+	FeeDenomParam(context.Context, *MsgFeeDenomParam) (*MsgFeeDenomParamResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -315,8 +316,8 @@ type UnimplementedMsgServer struct {
 func (*UnimplementedMsgServer) Params(ctx context.Context, req *MsgParams) (*MsgParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (*UnimplementedMsgServer) State(ctx context.Context, req *MsgState) (*MsgStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method State not implemented")
+func (*UnimplementedMsgServer) FeeDenomParam(ctx context.Context, req *MsgFeeDenomParam) (*MsgFeeDenomParamResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeeDenomParam not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -341,20 +342,20 @@ func _Msg_Params_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_State_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgState)
+func _Msg_FeeDenomParam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgFeeDenomParam)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).State(ctx, in)
+		return srv.(MsgServer).FeeDenomParam(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/feemarket.feemarket.v1.Msg/State",
+		FullMethod: "/feemarket.feemarket.v1.Msg/FeeDenomParam",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).State(ctx, req.(*MsgState))
+		return srv.(MsgServer).FeeDenomParam(ctx, req.(*MsgFeeDenomParam))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -368,8 +369,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_Params_Handler,
 		},
 		{
-			MethodName: "State",
-			Handler:    _Msg_State_Handler,
+			MethodName: "FeeDenomParam",
+			Handler:    _Msg_FeeDenomParam_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -439,7 +440,7 @@ func (m *MsgParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgState) Marshal() (dAtA []byte, err error) {
+func (m *MsgFeeDenomParam) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -449,12 +450,12 @@ func (m *MsgState) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgState) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgFeeDenomParam) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgFeeDenomParam) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -467,7 +468,7 @@ func (m *MsgState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		dAtA[i] = 0x12
 	}
 	{
-		size, err := m.State.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.FeeDenomParam.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -479,7 +480,7 @@ func (m *MsgState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgStateResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgFeeDenomParamResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -489,12 +490,12 @@ func (m *MsgStateResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgStateResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgFeeDenomParamResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgStateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgFeeDenomParamResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -537,13 +538,13 @@ func (m *MsgParamsResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgState) Size() (n int) {
+func (m *MsgFeeDenomParam) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.State.Size()
+	l = m.FeeDenomParam.Size()
 	n += 1 + l + sovTx(uint64(l))
 	l = len(m.Authority)
 	if l > 0 {
@@ -552,7 +553,7 @@ func (m *MsgState) Size() (n int) {
 	return n
 }
 
-func (m *MsgStateResponse) Size() (n int) {
+func (m *MsgFeeDenomParamResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -732,7 +733,7 @@ func (m *MsgParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgState) Unmarshal(dAtA []byte) error {
+func (m *MsgFeeDenomParam) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -755,15 +756,15 @@ func (m *MsgState) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgState: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgFeeDenomParam: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgState: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgFeeDenomParam: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field State", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field FeeDenomParam", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -790,7 +791,7 @@ func (m *MsgState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.State.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.FeeDenomParam.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -847,7 +848,7 @@ func (m *MsgState) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgStateResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgFeeDenomParamResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -870,10 +871,10 @@ func (m *MsgStateResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgStateResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgFeeDenomParamResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgStateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgFeeDenomParamResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
