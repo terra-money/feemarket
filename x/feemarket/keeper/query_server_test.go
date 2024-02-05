@@ -51,48 +51,45 @@ func (s *KeeperTestSuite) TestParamsRequest() {
 	})
 }
 
-func (s *KeeperTestSuite) TestStateRequest() {
-	s.Run("can get default state", func() {
-		req := &types.StateRequest{
+func (s *KeeperTestSuite) TestFeeDenomParamRequest() {
+	s.Run("can get default feeDenomParam", func() {
+		req := &types.FeeDenomParamRequest{
 			FeeDenom: "",
 		}
-		resp, err := s.queryServer.State(s.ctx, req)
+		resp, err := s.queryServer.FeeDenomParam(s.ctx, req)
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		s.Require().Equal(types.DefaultState(), resp.States)
+		s.Require().Equal(types.DefaultFeeDenomParam(), resp.FeeDenomParams)
 
-		states, err := s.feeMarketKeeper.GetStates(s.ctx)
+		fdps, err := s.feeMarketKeeper.GetFeeDenomParams(s.ctx)
 		s.Require().NoError(err)
 
-		s.Require().Equal(resp.States, states)
+		s.Require().Equal(resp.FeeDenomParams, fdps)
 	})
 
-	s.Run("can get updated state", func() {
-		state := types.State{
-			FeeDenom:     types.DefaultFeeDenom,
-			MinBaseFee:   math.LegacyOneDec(),
-			BaseFee:      math.LegacyOneDec(),
-			LearningRate: math.LegacyOneDec(),
-			Window:       []uint64{1},
-			Index:        0,
+	s.Run("can get updated feeDenomParam", func() {
+		fdp := types.FeeDenomParam{
+			MinBaseFee: math.LegacyOneDec(),
+			BaseFee:    math.LegacyOneDec(),
+			FeeDenom:   types.DefaultFeeDenom,
 		}
-		err := s.feeMarketKeeper.SetState(s.ctx, state)
+		err := s.feeMarketKeeper.SetFeeDenomParam(s.ctx, fdp)
 		s.Require().NoError(err)
 
-		req := &types.StateRequest{
+		req := &types.FeeDenomParamRequest{
 			FeeDenom: types.DefaultFeeDenom,
 		}
-		resp, err := s.queryServer.State(s.ctx, req)
+		resp, err := s.queryServer.FeeDenomParam(s.ctx, req)
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		s.Require().Equal(state, resp.States[0])
+		s.Require().Equal(fdp, resp.FeeDenomParams[0])
 
-		states, err := s.feeMarketKeeper.GetState(s.ctx, types.DefaultFeeDenom)
+		fdp, err = s.feeMarketKeeper.GetFeeDenomParam(s.ctx, types.DefaultFeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().Equal(resp.States[0], states)
+		s.Require().Equal(resp.FeeDenomParams[0], fdp)
 	})
 }
 
@@ -112,12 +109,12 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 	})
 
 	s.Run("can get updated base fee", func() {
-		state, err := s.feeMarketKeeper.GetState(s.ctx, types.DefaultFeeDenom)
+		fdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, types.DefaultFeeDenom)
 		s.Require().NoError(err)
 
-		state.BaseFee = math.LegacyOneDec()
+		fdp.BaseFee = math.LegacyOneDec()
 
-		err = s.feeMarketKeeper.SetState(s.ctx, state)
+		err = s.feeMarketKeeper.SetFeeDenomParam(s.ctx, fdp)
 		s.Require().NoError(err)
 
 		req := &types.BaseFeeRequest{

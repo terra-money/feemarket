@@ -28,11 +28,12 @@ func FuzzDefaultFeeMarket(f *testing.F) {
 
 	// Default fee market.
 	f.Fuzz(func(t *testing.T, blockGasUsed uint64) {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()
 		params := types.DefaultParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.MinBaseFee = math.LegacyNewDec(100)
-		state.BaseFee = math.LegacyNewDec(200)
+		fdp.MinBaseFee = math.LegacyNewDec(100)
+		fdp.BaseFee = math.LegacyNewDec(200)
 		err := state.Update(blockGasUsed, params)
 
 		if blockGasUsed > params.MaxBlockUtilization {
@@ -49,8 +50,8 @@ func FuzzDefaultFeeMarket(f *testing.F) {
 		)
 		require.Equal(t, defaultLR, lr)
 
-		oldFee := state.BaseFee
-		newFee := state.UpdateBaseFee(params)
+		oldFee := fdp.BaseFee
+		newFee := fdp.UpdateBaseFee(params, state)
 
 		if blockGasUsed > params.TargetBlockUtilization {
 			require.True(t, newFee.GT(oldFee))
@@ -77,10 +78,12 @@ func FuzzAIMDFeeMarket(f *testing.F) {
 
 	// Fee market with adjustable learning rate.
 	f.Fuzz(func(t *testing.T, blockGasUsed uint64) {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()
 		params := types.DefaultAIMDParams()
-		state.MinBaseFee = math.LegacyNewDec(100)
-		state.BaseFee = math.LegacyNewDec(200)
+		fdp := types.DefaultAIMDFeeDenomParam()[0]
+
+		fdp.MinBaseFee = math.LegacyNewDec(100)
+		fdp.BaseFee = math.LegacyNewDec(200)
 		state.Window = make([]uint64, 1)
 		err := state.Update(blockGasUsed, params)
 
@@ -92,8 +95,8 @@ func FuzzAIMDFeeMarket(f *testing.F) {
 		require.NoError(t, err)
 		require.Equal(t, blockGasUsed, state.Window[state.Index])
 
-		oldFee := state.BaseFee
-		newFee := state.UpdateBaseFee(params)
+		oldFee := fdp.BaseFee
+		newFee := fdp.UpdateBaseFee(params, state)
 
 		if blockGasUsed > params.TargetBlockUtilization {
 			require.True(t, newFee.GT(oldFee))

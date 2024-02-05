@@ -14,7 +14,7 @@ import (
 // constant for the default EIP-1559 implementation.
 func TestLearningRate(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()
 		params := CreateRandomParams(t)
 
 		// Randomly generate alpha and beta.
@@ -39,12 +39,13 @@ func TestLearningRate(t *testing.T) {
 // direction for the default EIP-1559 implementation.
 func TestBaseFee(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()
 		params := CreateRandomParams(t)
+		fdp := types.DefaultFeeDenomParam()[0]
 
 		// Update the current base fee to be 10% higher than the minimum base fee.
-		prevBaseFee := state.BaseFee.MulInt64(11).QuoInt64(10)
-		state.BaseFee = prevBaseFee
+		prevBaseFee := fdp.BaseFee.MulInt64(11).QuoInt64(10)
+		fdp.BaseFee = prevBaseFee
 
 		// Randomly generate the block utilization.
 		blockUtilization := rapid.Uint64Range(0, params.MaxBlockUtilization).Draw(t, "gas")
@@ -57,18 +58,18 @@ func TestBaseFee(t *testing.T) {
 		// Update the learning rate.
 		state.UpdateLearningRate(params)
 		// Update the base fee.
-		state.UpdateBaseFee(params)
+		fdp.UpdateBaseFee(params, state)
 
 		// Ensure that the minimum base fee is always less than the base fee.
-		require.True(t, state.MinBaseFee.LTE(state.BaseFee))
+		require.True(t, fdp.MinBaseFee.LTE(fdp.BaseFee))
 
 		switch {
 		case blockUtilization > params.TargetBlockUtilization:
-			require.True(t, state.BaseFee.GTE(prevBaseFee))
+			require.True(t, fdp.BaseFee.GTE(prevBaseFee))
 		case blockUtilization < params.TargetBlockUtilization:
-			require.True(t, state.BaseFee.LTE(prevBaseFee))
+			require.True(t, fdp.BaseFee.LTE(prevBaseFee))
 		default:
-			require.Equal(t, state.BaseFee, prevBaseFee)
+			require.Equal(t, fdp.BaseFee, prevBaseFee)
 		}
 	})
 }

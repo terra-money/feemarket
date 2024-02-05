@@ -19,7 +19,7 @@ import (
 // the multiplicative decrease parameter.
 func TestAIMDLearningRate(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()
 		window := rapid.Int64Range(1, 50).Draw(t, "window")
 		state.Window = make([]uint64, window)
 
@@ -65,7 +65,9 @@ func TestAIMDLearningRate(t *testing.T) {
 // default EIP-1559 base fee adjustment algorithm.
 func TestAIMDBaseFee(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()
+		fdp := types.DefaultFeeDenomParam()[0]
+
 		window := rapid.Int64Range(1, 50).Draw(t, "window")
 		state.Window = make([]uint64, window)
 
@@ -78,7 +80,7 @@ func TestAIMDBaseFee(t *testing.T) {
 		// Update the fee market.
 		for i := uint64(0); i < numBlocks; i++ {
 			blockUtilization := gasGen.Draw(t, "gas")
-			prevBaseFee := state.BaseFee
+			prevBaseFee := fdp.BaseFee
 
 			if err := state.Update(blockUtilization, params); err != nil {
 				t.Fatalf("block update errors: %v", err)
@@ -87,27 +89,27 @@ func TestAIMDBaseFee(t *testing.T) {
 			// Update the learning rate.
 			state.UpdateLearningRate(params)
 			// Update the base fee.
-			state.UpdateBaseFee(params)
+			fdp.UpdateBaseFee(params, state)
 
 			// Ensure that the minimum base fee is always less than the base fee.
-			require.True(t, state.MinBaseFee.LTE(state.BaseFee))
+			require.True(t, fdp.MinBaseFee.LTE(fdp.BaseFee))
 
 			switch {
 			case blockUtilization > params.TargetBlockUtilization:
-				require.True(t, state.BaseFee.GTE(prevBaseFee))
+				require.True(t, fdp.BaseFee.GTE(prevBaseFee))
 			case blockUtilization < params.TargetBlockUtilization:
-				require.True(t, state.BaseFee.LTE(prevBaseFee))
+				require.True(t, fdp.BaseFee.LTE(prevBaseFee))
 			default:
 
 				// Account for the delta adjustment.
 				net := state.GetNetUtilization(params)
 				switch {
 				case net.GT(math.ZeroInt()):
-					require.True(t, state.BaseFee.GTE(prevBaseFee))
+					require.True(t, fdp.BaseFee.GTE(prevBaseFee))
 				case net.LT(math.ZeroInt()):
-					require.True(t, state.BaseFee.LTE(prevBaseFee))
+					require.True(t, fdp.BaseFee.LTE(prevBaseFee))
 				default:
-					require.True(t, state.BaseFee.Equal(prevBaseFee))
+					require.True(t, fdp.BaseFee.Equal(prevBaseFee))
 				}
 			}
 

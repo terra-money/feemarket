@@ -49,29 +49,29 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.queryServer = keeper.NewQueryServer(*s.feeMarketKeeper)
 }
 
-func (s *KeeperTestSuite) TestState() {
-	s.Run("set and get default eip1559 state", func() {
-		state := types.DefaultState()[0]
+func (s *KeeperTestSuite) TestFeeDenomParam() {
+	s.Run("set and get default eip1559 feeDenomParam", func() {
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		err := s.feeMarketKeeper.SetState(s.ctx, state)
+		err := s.feeMarketKeeper.SetFeeDenomParam(s.ctx, fdp)
 		s.Require().NoError(err)
 
-		gotState, err := s.feeMarketKeeper.GetState(s.ctx, state.FeeDenom)
+		gotFdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, fdp.FeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().EqualValues(state, gotState)
+		s.Require().EqualValues(fdp, gotFdp)
 	})
 
-	s.Run("set and get aimd eip1559 state", func() {
-		state := types.DefaultAIMDState()[0]
+	s.Run("set and get aimd eip1559 feeDenomParam", func() {
+		fdp := types.DefaultAIMDFeeDenomParam()[0]
 
-		err := s.feeMarketKeeper.SetState(s.ctx, state)
+		err := s.feeMarketKeeper.SetFeeDenomParam(s.ctx, fdp)
 		s.Require().NoError(err)
 
-		gotState, err := s.feeMarketKeeper.GetState(s.ctx, state.FeeDenom)
+		gotFdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, fdp.FeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().Equal(state, gotState)
+		s.Require().Equal(fdp, gotFdp)
 	})
 }
 

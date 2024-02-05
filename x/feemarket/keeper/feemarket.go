@@ -31,20 +31,6 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 		params,
 	)
 
-	// Increment the height of the state and set the new state.
-	state.IncrementHeight()
-	if err := k.SetState(ctx, state); err != nil {
-		return err
-	}
-
-	k.Logger(ctx).Info(
-		"updated the fee market state",
-		"height", ctx.BlockHeight(),
-		"new_learning_rate", newLR,
-		"average_block_utilization", state.GetAverageUtilization(params),
-		"net_block_utilization", state.GetNetUtilization(params),
-	)
-
 	fdps, err := k.GetFeeDenomParams(ctx)
 	if err != nil {
 		return err
@@ -66,6 +52,21 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 			return err
 		}
 	}
+
+	k.Logger(ctx).Info(
+		"updated the fee market state",
+		"height", ctx.BlockHeight(),
+		"new_learning_rate", newLR,
+		"average_block_utilization", state.GetAverageUtilization(params),
+		"net_block_utilization", state.GetNetUtilization(params),
+	)
+
+	// Increment the height of the state and set the new state.
+	state.IncrementHeight()
+	if err := k.SetState(ctx, state); err != nil {
+		return err
+	}
+
 	return nil
 }
 

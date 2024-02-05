@@ -5,7 +5,7 @@ import (
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
-func (s *KeeperTestSuite) TestMsgParams() {
+func (s *KeeperTestSuite) TestMsg() {
 	s.Run("accepts a req with no params", func() {
 		req := &types.MsgParams{
 			Authority: s.authorityAccount.String(),
@@ -41,41 +41,41 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		s.Require().Error(err)
 	})
 
-	s.Run("rejects a req with no state", func() {
-		req := &types.MsgState{
+	s.Run("rejects a req with no feeDenomParam", func() {
+		req := &types.MsgFeeDenomParam{
 			Authority: s.authorityAccount.String(),
 		}
-		_, err := s.msgServer.State(s.ctx, req)
+		_, err := s.msgServer.FeeDenomParam(s.ctx, req)
 		s.Require().Error(err)
 	})
 
-	s.Run("rejects a req with state that has no feeDenom", func() {
-		state := types.DefaultState()[0]
-		state.FeeDenom = ""
-		req := &types.MsgState{
-			Authority: s.authorityAccount.String(),
-			State:     state,
+	s.Run("rejects a req with feeDenomParam that has no feeDenom", func() {
+		fdp := types.DefaultFeeDenomParam()[0]
+		fdp.FeeDenom = ""
+		req := &types.MsgFeeDenomParam{
+			Authority:     s.authorityAccount.String(),
+			FeeDenomParam: fdp,
 		}
-		_, err := s.msgServer.State(s.ctx, req)
+		_, err := s.msgServer.FeeDenomParam(s.ctx, req)
 		s.Require().Error(err)
 	})
 
-	s.Run("rejects a req with state that has no feeDenom", func() {
-		reqState := types.DefaultState()[0]
-		feeDenom := reqState.FeeDenom
+	s.Run("rejects a req with feeDenomParam that has no feeDenom", func() {
+		reqFdp := types.DefaultFeeDenomParam()[0]
+		feeDenom := reqFdp.FeeDenom
 
-		reqState.MinBaseFee = sdkmath.LegacyNewDec(2)
-		reqState.BaseFee = reqState.MinBaseFee
+		reqFdp.MinBaseFee = sdkmath.LegacyNewDec(2)
+		reqFdp.BaseFee = reqFdp.MinBaseFee
 
-		req := &types.MsgState{
-			Authority: s.authorityAccount.String(),
-			State:     reqState,
+		req := &types.MsgFeeDenomParam{
+			Authority:     s.authorityAccount.String(),
+			FeeDenomParam: reqFdp,
 		}
-		_, err := s.msgServer.State(s.ctx, req)
+		_, err := s.msgServer.FeeDenomParam(s.ctx, req)
 		s.Require().NoError(err)
 
-		state, err := s.feeMarketKeeper.GetState(s.ctx, feeDenom)
+		fdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, feeDenom)
 		s.Require().NoError(err)
-		s.Require().Equal(state, reqState)
+		s.Require().Equal(fdp, reqFdp)
 	})
 }

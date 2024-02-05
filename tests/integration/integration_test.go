@@ -34,24 +34,24 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 func (s *IntegrationTestSuite) TestState() {
 	s.Run("set and get default eip1559 state", func() {
-		state := types.DefaultState()[0]
+		state := types.DefaultState()
 
 		err := s.TestKeepers.FeeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx, state.FeeDenom)
+		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
 		s.Require().NoError(err)
 
 		s.Require().EqualValues(state, gotState)
 	})
 
 	s.Run("set and get aimd eip1559 state", func() {
-		state := types.DefaultAIMDState()[0]
+		state := types.DefaultAIMDState()
 
 		err := s.TestKeepers.FeeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx, state.FeeDenom)
+		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
 		s.Require().NoError(err)
 
 		s.Require().Equal(state, gotState)

@@ -70,7 +70,6 @@ func (s *NetworkTestSuite) TestGetState() {
 	ctx := s.Network.Validators[0].ClientCtx
 
 	common := []string{
-		"",
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
 	for _, tc := range []struct {
@@ -78,7 +77,7 @@ func (s *NetworkTestSuite) TestGetState() {
 
 		args []string
 		err  error
-		obj  []types.State
+		obj  types.State
 	}{
 		{
 			name: "should return default state",
@@ -95,10 +94,10 @@ func (s *NetworkTestSuite) TestGetState() {
 				require.ErrorIs(t, stat.Err(), tc.err)
 			} else {
 				require.NoError(t, err)
-				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.NotNil(t, resp.States)
-				require.Equal(t, tc.obj, resp.States)
+				var state types.State
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &state))
+				require.NotNil(t, state)
+				require.Equal(t, tc.obj, state)
 			}
 		})
 	}
@@ -110,7 +109,6 @@ func (s *NetworkTestSuite) TestSpamTx() {
 	ctx := s.Network.Validators[0].ClientCtx
 
 	common := []string{
-		"",
 		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 	}
 	for _, tc := range []struct {
@@ -118,7 +116,7 @@ func (s *NetworkTestSuite) TestSpamTx() {
 
 		args []string
 		err  error
-		obj  []types.State
+		obj  types.State
 	}{
 		{
 			name: "should return default state",
@@ -137,10 +135,10 @@ func (s *NetworkTestSuite) TestSpamTx() {
 				require.ErrorIs(t, stat.Err(), tc.err)
 			} else {
 				require.NoError(t, err)
-				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.NotNil(t, resp.States)
-				require.Equal(t, tc.obj, resp.States)
+				var state types.State
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &state))
+				require.NotNil(t, state)
+				require.Equal(t, tc.obj, state)
 			}
 		})
 	}
