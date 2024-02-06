@@ -11,13 +11,15 @@ import (
 
 func TestMsgState(t *testing.T) {
 	t.Run("should reject a message with an invalid authority address", func(t *testing.T) {
-		msg := types.NewMsgFeeDenomParam("invalid", types.DefaultFeeDenomParam()[0])
+		fdp := types.DefaultFeeDenomParam()[0]
+		msg := types.NewMsgFeeDenomParam("invalid", fdp.FeeDenom, fdp.MinBaseFee)
 		err := msg.ValidateBasic()
 		require.Error(t, err)
 	})
 
 	t.Run("should accept an empty message with a valid authority address", func(t *testing.T) {
-		msg := types.NewMsgFeeDenomParam(sdk.AccAddress("test").String(), types.DefaultFeeDenomParam()[0])
+		fdp := types.DefaultFeeDenomParam()[0]
+		msg := types.NewMsgFeeDenomParam(sdk.AccAddress("test").String(), fdp.FeeDenom, fdp.MinBaseFee)
 		err := msg.ValidateBasic()
 		require.NoError(t, err)
 	})

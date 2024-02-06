@@ -63,8 +63,8 @@ func (s *KeeperTestSuite) TestMsgFeeDenomParam() {
 		fdp := types.DefaultFeeDenomParam()[0]
 		fdp.FeeDenom = ""
 		req := &types.MsgFeeDenomParam{
-			Authority:     s.authorityAccount.String(),
-			FeeDenomParam: fdp,
+			Authority:  s.authorityAccount.String(),
+			MinBaseFee: fdp.MinBaseFee,
 		}
 		_, err := s.msgServer.FeeDenomParam(s.ctx, req)
 		s.Require().Error(err)
@@ -74,12 +74,12 @@ func (s *KeeperTestSuite) TestMsgFeeDenomParam() {
 		reqFdp := types.DefaultFeeDenomParam()[0]
 		feeDenom := reqFdp.FeeDenom
 
-		reqFdp.MinBaseFee = sdkmath.LegacyNewDec(2)
-		reqFdp.BaseFee = reqFdp.MinBaseFee
+		reqFdp.MinBaseFee = sdkmath.LegacyOneDec()
 
 		req := &types.MsgFeeDenomParam{
-			Authority:     s.authorityAccount.String(),
-			FeeDenomParam: reqFdp,
+			Authority:  s.authorityAccount.String(),
+			FeeDenom:   feeDenom,
+			MinBaseFee: reqFdp.MinBaseFee,
 		}
 		_, err := s.msgServer.FeeDenomParam(s.ctx, req)
 		s.Require().NoError(err)

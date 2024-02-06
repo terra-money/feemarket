@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
@@ -52,9 +53,20 @@ func (ms MsgServer) FeeDenomParam(goCtx context.Context, msg *types.MsgFeeDenomP
 		return nil, fmt.Errorf("invalid authority to execute message")
 	}
 
-	fdp := msg.FeeDenomParam
-	if err := fdp.ValidateBasic(); err != nil {
-		return nil, fmt.Errorf("invalid feeDenomParam: %w", err)
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, fmt.Errorf("invalid MsgFeeDenomParam: %w", err)
+	}
+
+	fdp, err := ms.k.GetFeeDenomParam(ctx, msg.FeeDenom)
+	if sdkerrors.ErrKeyNotFound.Is(err) {
+		fdp = types.NewFeeDenomParam(msg.FeeDenom, msg.MinBaseFee, msg.MinBaseFee)
+	} else if err != nil {
+		return nil, err
+	}
+
+	fdp.MinBaseFee = msg.MinBaseFee
+	if fdp.BaseFee.LT(msg.MinBaseFee) {
+		fdp.BaseFee = msg.MinBaseFee
 	}
 
 	if err := ms.k.SetFeeDenomParam(ctx, fdp); err != nil {
