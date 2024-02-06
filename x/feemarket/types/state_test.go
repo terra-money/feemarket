@@ -130,7 +130,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		fdp.BaseFee = math.LegacyNewDec(1000)
 		fdp.MinBaseFee = math.LegacyNewDec(125)
 
-		newBaseFee := fdp.UpdateBaseFee(params, state)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := math.LegacyNewDec(875)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -145,7 +146,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 
 		state.Window[0] = params.TargetBlockUtilization
 
-		newBaseFee := fdp.UpdateBaseFee(params, state)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := math.LegacyNewDec(1000)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -160,7 +162,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 
 		state.Window[0] = params.MaxBlockUtilization
 
-		newBaseFee := fdp.UpdateBaseFee(params, state)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := math.LegacyNewDec(1125)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -175,8 +178,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		state.LearningRate = math.LegacyMustNewDecFromStr("0.125")
 
 		state.UpdateLearningRate(params)
-		newBaseFee := fdp.UpdateBaseFee(params, state)
-
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := math.LegacyNewDec(850)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -195,8 +198,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		}
 
 		state.UpdateLearningRate(params)
-		newBaseFee := fdp.UpdateBaseFee(params, state)
-
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := math.LegacyNewDec(1000)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -215,8 +218,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		}
 
 		state.UpdateLearningRate(params)
-		newBaseFee := fdp.UpdateBaseFee(params, state)
-
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := math.LegacyNewDec(1150)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -227,7 +230,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		fdp := types.DefaultFeeDenomParam()[0]
 
 		// Empty block
-		newBaseFee := fdp.UpdateBaseFee(params, state)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := fdp.MinBaseFee
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -238,7 +242,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		fdp := types.DefaultAIMDFeeDenomParam()[0]
 
 		// Empty blocks
-		newBaseFee := fdp.UpdateBaseFee(params, state)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 		expectedBaseFee := fdp.MinBaseFee
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
@@ -261,7 +266,8 @@ func TestState_UpdateBaseFee(t *testing.T) {
 			require.NotPanics(t, func() {
 				state.Update(params.MaxBlockUtilization, params)
 				state.UpdateLearningRate(params)
-				baseFee = fdp.UpdateBaseFee(params, state)
+				learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+				baseFee = fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 			})
 
 			// An overflow should have occurred.

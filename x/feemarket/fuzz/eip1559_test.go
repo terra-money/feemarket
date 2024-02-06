@@ -58,7 +58,8 @@ func TestBaseFee(t *testing.T) {
 		// Update the learning rate.
 		state.UpdateLearningRate(params)
 		// Update the base fee.
-		fdp.UpdateBaseFee(params, state)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 
 		// Ensure that the minimum base fee is always less than the base fee.
 		require.True(t, fdp.MinBaseFee.LTE(fdp.BaseFee))

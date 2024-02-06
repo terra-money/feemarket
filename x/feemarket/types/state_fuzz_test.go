@@ -51,7 +51,9 @@ func FuzzDefaultFeeMarket(f *testing.F) {
 		require.Equal(t, defaultLR, lr)
 
 		oldFee := fdp.BaseFee
-		newFee := fdp.UpdateBaseFee(params, state)
+
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 
 		if blockGasUsed > params.TargetBlockUtilization {
 			require.True(t, newFee.GT(oldFee))
@@ -96,7 +98,9 @@ func FuzzAIMDFeeMarket(f *testing.F) {
 		require.Equal(t, blockGasUsed, state.Window[state.Index])
 
 		oldFee := fdp.BaseFee
-		newFee := fdp.UpdateBaseFee(params, state)
+
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 
 		if blockGasUsed > params.TargetBlockUtilization {
 			require.True(t, newFee.GT(oldFee))
