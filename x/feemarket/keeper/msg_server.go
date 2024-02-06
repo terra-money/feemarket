@@ -35,6 +35,23 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 	if err := ms.k.SetParams(ctx, params); err != nil {
 		return nil, fmt.Errorf("error setting params: %w", err)
 	}
+	state, err := ms.k.GetState(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting state: %w", err)
+	}
+
+	if int(params.Window) != len(state.Window) {
+		window := make([]uint64, params.Window)
+		for i := range window {
+			if i < len(state.Window) {
+				window[i] = state.Window[i]
+			} else {
+				window[i] = 0
+			}
+		}
+		state.Window = window
+		ms.k.SetState(ctx, state)
+	}
 
 	// newState := types.NewState(params.Window, params.MinBaseFee, params.MinLearningRate)
 	// if err := ms.k.SetState(ctx, newState); err != nil {

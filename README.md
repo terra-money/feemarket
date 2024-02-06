@@ -98,7 +98,7 @@ type FeeMarketKeeper interface {
   GetState(ctx sdk.Context) (feemarkettypes.State, error)
 
   // Set the state in the store.
-	SetState(ctx sdk.Context, state feemarkettypes.State) error
+  SetState(ctx sdk.Context, state feemarkettypes.State) error
 
   // Get the current params from the store.
   GetParams(ctx sdk.Context) (feemarkettypes.Params, error)
