@@ -26,6 +26,7 @@ func GetQueryCmd() *cobra.Command {
 		GetParamsCmd(),
 		GetStateCmd(),
 		GetBaseFeeCmd(),
+		GetFeeDenomParamCmd(),
 	)
 
 	return cmd
@@ -88,8 +89,8 @@ func GetStateCmd() *cobra.Command {
 // GetFeeDenomParamCmd returns the cli-command that queries the current feemarket feeDenomParam.
 func GetFeeDenomParamCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "FeeDenomParam [fee_denom]",
-		Short: "Query for the current feeDenomParam",
+		Use:   "fee-denom-param [fee_denom]",
+		Short: "Query for the fee-denom-param of fee_denom",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
