@@ -363,14 +363,14 @@ Example Output:
 ```yml
 alpha: "0.000000000000000000"
 beta: "1.000000000000000000"
-theta: "0.000000000000000000"
-min_learning_rate: "0.125000000000000000"
-max_learning_rate: "0.125000000000000000"
-target_block_utilization: "15000000"
-max_block_utilization: "30000000"
-window: "1"
+default_fee_denom: uluna
 enabled: true
-default_fee_denom: stake
+max_block_utilization: "400000"
+max_learning_rate: "0.125000000000000000"
+min_learning_rate: "0.125000000000000000"
+target_block_utilization: "40000"
+theta: "0.000000000000000000"
+window: "1"
 ```
 
 ##### state
@@ -390,15 +390,37 @@ feemarketd query feemarket state
 Example Output:
 
 ```yml
+index: "0"
 learning_rate: "0.125000000000000000"
 window:
-  - "0"
-index: "0"
+- "0"
+```
+
+##### fee-denom-param
+
+The `base-fee` command allows users to query the current base-fee of fee_denom.
+
+```shell
+feemarketd query feemarket base-fee [fee_denom] [flags]
+```
+
+Example:
+
+```shell
+feemarketd query feemarket base-fee stake
+```
+
+Example Output:
+
+```yml
+base_fee: "0.001500000000000000"
+fee_denom: uluna
+min_base_fee: "0.001500000000000000"
 ```
 
 ##### base-fee
 
-The `base-fee` command allows users to query the current base-fee of feeDenom.
+The `base-fee` command allows users to query the current base-fee of fee_denom.
 
 ```shell
 feemarketd query feemarket base-fee [fee_denom] [flags]
