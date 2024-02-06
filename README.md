@@ -25,7 +25,6 @@ This module is planned to be used in the Cosmos Hub.
     * [Alpha](#alpha)
     * [Beta](#beta)
     * [Theta](#theta)
-    * [Delta](#delta)
     * [MinBaseFee](#minbasefee)
     * [MinLearningRate](#minlearningrate)
     * [MaxLearningRate](#maxlearningrate)
@@ -223,12 +222,6 @@ above or below the target +/- threshold, we additively increase the
 learning rate by Alpha. Otherwise, we multiplicatively decrease the
 learning rate by Beta.
 
-### Delta
-
-Delta is the amount we additively increase/decrease the base fee when the
-net block utilization difference in the window is above/below the target
-utilization.
-
 ### MinBaseFee
 
 MinBaseFee determines the initial base fee of the module and the global
@@ -297,54 +290,45 @@ message Params {
     (gogoproto.nullable) = false
   ];
 
-  // Delta is the amount we additively increase/decrease the base fee when the
-  // net block utilization difference in the window is above/below the target
-  // utilization.
-  string delta = 4 [
-    (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
   // MinBaseFee determines the initial base fee of the module and the global
   // minimum
   // for the network. This is denominated in fee per gas unit.
-  string min_base_fee = 5 [
+  string min_base_fee = 4 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
   // MinLearningRate is the lower bound for the learning rate.
-  string min_learning_rate = 6 [
+  string min_learning_rate = 5 [
     (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // MaxLearningRate is the upper bound for the learning rate.
-  string max_learning_rate = 7 [
+  string max_learning_rate = 6 [
     (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // TargetBlockUtilization is the target block utilization.
-  uint64 target_block_utilization = 8;
+  uint64 target_block_utilization = 7;
 
   // MaxBlockUtilization is the maximum block utilization.
-  uint64 max_block_utilization = 9;
+  uint64 max_block_utilization = 8;
 
   // Window defines the window size for calculating an adaptive learning rate
   // over a moving window of blocks.
-  uint64 window = 10;
+  uint64 window = 9;
 
   // FeeDenom is the denom that will be used for all fee payments.
-  string fee_denom = 11;
+  string fee_denom = 10;
 
   // Enabled is a boolean that determines whether the EIP1559 fee market is
   // enabled.
-  bool enabled = 12;
+  bool enabled = 11;
 }
 ```
 
@@ -381,7 +365,6 @@ Example Output:
 ```yml
 alpha: "0.000000000000000000"
 beta: "1.000000000000000000"
-delta: "0.000000000000000000"
 enabled: true
 fee_denom: stake
 max_block_utilization: "30000000"
@@ -465,7 +448,6 @@ Example Output:
     "alpha": "0",
     "beta": "1000000000000000000",
     "theta": "0",
-    "delta": "0",
     "minBaseFee": "1000000",
     "minLearningRate": "125000000000000000",
     "maxLearningRate": "125000000000000000",

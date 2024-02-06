@@ -43,7 +43,7 @@ func (s *State) IncrementHeight() {
 // UpdateBaseFee updates the learning rate and base fee based on the AIMD
 // learning rate adjustment algorithm. The learning rate is updated
 // based on the average utilization of the block window. The base fee is
-// update using the new learning rate and the delta adjustment. Please
+// update using the new learning rate. Please
 // see the EIP-1559 specification for more details.
 func (s *FeeDenomParam) UpdateBaseFee(params Params, state State) (fee math.LegacyDec) {
 	// Panic catch in case there is an overflow
@@ -65,11 +65,8 @@ func (s *FeeDenomParam) UpdateBaseFee(params Params, state State) (fee math.Lega
 	// 1 + (learningRate * (currentBlockSize - targetBlockSize) / targetBlockSize)
 	learningRateAdjustment := math.LegacyOneDec().Add(state.LearningRate.Mul(utilization))
 
-	// Calculate the delta adjustment.
-	net := math.LegacyNewDecFromInt(state.GetNetUtilization(params)).Mul(params.Delta)
-
 	// Update the base fee.
-	fee = s.BaseFee.Mul(learningRateAdjustment).Add(net)
+	fee = s.BaseFee.Mul(learningRateAdjustment)
 
 	// Ensure the base fee is greater than the minimum base fee.
 	if fee.LT(s.MinBaseFee) {
