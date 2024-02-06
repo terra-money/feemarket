@@ -51,6 +51,44 @@ func (s *KeeperTestSuite) TestParamsRequest() {
 	})
 }
 
+func (s *KeeperTestSuite) TestStateRequest() {
+	s.Run("can get default state", func() {
+		req := &types.StateRequest{}
+		resp, err := s.queryServer.State(s.ctx, req)
+		s.Require().NoError(err)
+		s.Require().NotNil(resp)
+
+		s.Require().Equal(types.DefaultState(), resp.State)
+
+		params, err := s.feeMarketKeeper.GetState(s.ctx)
+		s.Require().NoError(err)
+
+		s.Require().Equal(resp.State, params)
+	})
+
+	s.Run("can get updated params", func() {
+		state := types.State{
+			LearningRate: math.LegacyOneDec(),
+			Window:       []uint64{1},
+			Index:        0,
+		}
+		err := s.feeMarketKeeper.SetState(s.ctx, state)
+		s.Require().NoError(err)
+
+		req := &types.StateRequest{}
+		resp, err := s.queryServer.State(s.ctx, req)
+		s.Require().NoError(err)
+		s.Require().NotNil(resp)
+
+		s.Require().Equal(state, resp.State)
+
+		state, err = s.feeMarketKeeper.GetState(s.ctx)
+		s.Require().NoError(err)
+
+		s.Require().Equal(resp.State, state)
+	})
+}
+
 func (s *KeeperTestSuite) TestFeeDenomParamRequest() {
 	s.Run("can get default feeDenomParam", func() {
 		req := &types.FeeDenomParamRequest{

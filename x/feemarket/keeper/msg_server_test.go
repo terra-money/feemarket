@@ -5,7 +5,7 @@ import (
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
-func (s *KeeperTestSuite) TestMsg() {
+func (s *KeeperTestSuite) TestMsgParams() {
 	s.Run("accepts a req with no params", func() {
 		req := &types.MsgParams{
 			Authority: s.authorityAccount.String(),
@@ -40,6 +40,16 @@ func (s *KeeperTestSuite) TestMsg() {
 		_, err := s.msgServer.Params(s.ctx, req)
 		s.Require().Error(err)
 	})
+}
+
+func (s *KeeperTestSuite) TestMsgFeeDenomParam() {
+	s.Run("rejects a req with invalid signer", func() {
+		req := &types.MsgFeeDenomParam{
+			Authority: "invalid",
+		}
+		_, err := s.msgServer.FeeDenomParam(s.ctx, req)
+		s.Require().Error(err)
+	})
 
 	s.Run("rejects a req with no feeDenomParam", func() {
 		req := &types.MsgFeeDenomParam{
@@ -60,7 +70,7 @@ func (s *KeeperTestSuite) TestMsg() {
 		s.Require().Error(err)
 	})
 
-	s.Run("rejects a req with feeDenomParam that has no feeDenom", func() {
+	s.Run("accepts a req with all required fields", func() {
 		reqFdp := types.DefaultFeeDenomParam()[0]
 		feeDenom := reqFdp.FeeDenom
 
