@@ -45,7 +45,7 @@ func (s *State) IncrementHeight() {
 // based on the average utilization of the block window. The base fee is
 // update using the new learning rate. Please
 // see the EIP-1559 specification for more details.
-func (s *FeeDenomParam) UpdateBaseFee(params Params, state State) (fee math.LegacyDec) {
+func (s *FeeDenomParam) UpdateBaseFee(params Params, state State, learningRateAdjustment math.LegacyDec) (fee math.LegacyDec) {
 	// Panic catch in case there is an overflow
 	defer func() {
 		if rec := recover(); rec != nil {
@@ -53,17 +53,6 @@ func (s *FeeDenomParam) UpdateBaseFee(params Params, state State) (fee math.Lega
 			fee = s.BaseFee
 		}
 	}()
-
-	// Calculate the new base fee with the learning rate adjustment.
-	currentBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(state.Window[state.Index]))
-	targetBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(params.TargetBlockUtilization))
-	utilization := (currentBlockSize.Sub(targetBlockSize)).Quo(targetBlockSize)
-
-	// Truncate the learning rate adjustment to an integer.
-	//
-	// This is equivalent to
-	// 1 + (learningRate * (currentBlockSize - targetBlockSize) / targetBlockSize)
-	learningRateAdjustment := math.LegacyOneDec().Add(state.LearningRate.Mul(utilization))
 
 	// Update the base fee.
 	fee = s.BaseFee.Mul(learningRateAdjustment)
@@ -75,6 +64,21 @@ func (s *FeeDenomParam) UpdateBaseFee(params Params, state State) (fee math.Lega
 
 	s.BaseFee = fee
 	return s.BaseFee
+}
+
+func GetLearningRateAdjustment(params Params, state State) math.LegacyDec {
+	// Calculate the new base fee with the learning rate adjustment.
+	currentBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(state.Window[state.Index]))
+	targetBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(params.TargetBlockUtilization))
+	utilization := (currentBlockSize.Sub(targetBlockSize)).Quo(targetBlockSize)
+
+	// Truncate the learning rate adjustment to an integer.
+	//
+	// This is equivalent to
+	// 1 + (learningRate * (currentBlockSize - targetBlockSize) / targetBlockSize)
+	learningRateAdjustment := math.LegacyOneDec().Add(state.LearningRate.Mul(utilization))
+
+	return learningRateAdjustment
 }
 
 // UpdateLearningRate updates the learning rate based on the AIMD

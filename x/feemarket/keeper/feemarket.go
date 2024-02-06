@@ -3,6 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
 // UpdateFeeMarket updates the base fee and learning rate based on the
@@ -36,9 +37,11 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 		return err
 	}
 
+	learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+
 	for _, fdp := range fdps {
 		// Update the base fee based with the new learning rate and delta adjustment.
-		newBaseFee := fdp.UpdateBaseFee(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 
 		k.Logger(ctx).Info(
 			"updated the feeDenomParam",
