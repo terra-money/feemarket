@@ -61,7 +61,7 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 	return &types.MsgParamsResponse{}, nil
 }
 
-// State defines a method that updates the module's state for a feeDenom. The signer of the message must
+// FeeDenomParam defines a method that adds/updates the module's state for a feeDenom. The signer of the message must
 // be the module authority.
 func (ms MsgServer) FeeDenomParam(goCtx context.Context, msg *types.MsgFeeDenomParam) (*types.MsgFeeDenomParamResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -91,4 +91,24 @@ func (ms MsgServer) FeeDenomParam(goCtx context.Context, msg *types.MsgFeeDenomP
 	}
 
 	return &types.MsgFeeDenomParamResponse{}, nil
+}
+
+// RemoveFeeDenomParam defines a method that removes the module's state for a feeDenom. The signer of the message must
+// be the module authority.
+func (ms MsgServer) RemoveFeeDenomParam(goCtx context.Context, msg *types.MsgRemoveFeeDenomParam) (*types.MsgRemoveFeeDenomParamResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if msg.Authority != ms.k.GetAuthority() {
+		return nil, fmt.Errorf("invalid authority to execute message")
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, fmt.Errorf("invalid MsgRemoveFeeDenomParam: %w", err)
+	}
+
+	if err := ms.k.DeleteFeeDenomParam(ctx, msg.FeeDenom); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgRemoveFeeDenomParamResponse{}, nil
 }
