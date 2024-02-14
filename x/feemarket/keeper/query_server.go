@@ -48,11 +48,3 @@ func (q QueryServer) FeeDenomParam(goCtx context.Context, query *types.FeeDenomP
 	fdp, err := q.k.GetFeeDenomParam(ctx, query.FeeDenom)
 	return &types.FeeDenomParamResponse{FeeDenomParams: []types.FeeDenomParam{fdp}}, err
 }
-
-// BaseFee defines a method that returns the current feemarket base fee.
-func (q QueryServer) BaseFee(goCtx context.Context, query *types.BaseFeeRequest) (*types.BaseFeeResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	fee, err := q.k.GetMinGasPrice(ctx, query.FeeDenom)
-	return &types.BaseFeeResponse{Fee: fee}, err
-}

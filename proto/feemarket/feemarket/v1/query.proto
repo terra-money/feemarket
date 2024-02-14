@@ -32,13 +32,6 @@ service Query {
       get : "/feemarket/v1/fee_denom_param/{fee_denom}"
     };
   };
-
-  // BaseFee returns the current feemarket module base fee.
-  rpc BaseFee(BaseFeeRequest) returns (BaseFeeResponse) {
-    option (google.api.http) = {
-      get : "/feemarket/v1/base_fee/{fee_denom}"
-    };
-  };
 }
 
 // ParamsRequest is the request type for the Query/Params RPC method.
@@ -60,18 +53,3 @@ message FeeDenomParamRequest {
 
 // FeeDenomParamResponse is the response type for the Query/State RPC method.
 message FeeDenomParamResponse { repeated FeeDenomParam fee_denom_params = 1 [ (gogoproto.nullable) = false ]; }
-
-// BaseFeeRequest is the request type for the Query/BaseFee RPC method.
-message BaseFeeRequest {
-  string fee_denom = 1;
-}
-
-// StateResponse is the response type for the Query/BaseFee RPC method.
-message BaseFeeResponse {
-  cosmos.base.v1beta1.DecCoin fee = 1 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true,
-    (amino.encoding) = "legacy_dec_coin",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoin"
-  ];
-}
