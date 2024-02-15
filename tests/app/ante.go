@@ -13,7 +13,7 @@ import (
 // AnteHandlerOptions are the options required for constructing an SDK AnteHandler with the fee market injected.
 type AnteHandlerOptions struct {
 	BaseOptions     authante.HandlerOptions
-	AccountKeeper   feemarketante.AccountKeeper
+	AccountKeeper   authante.AccountKeeper
 	FeeMarketKeeper feemarketante.FeeMarketKeeper
 }
 

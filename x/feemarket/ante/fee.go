@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 )
 
 // FeeMarketCheckDecorator checks sufficient fees from the fee payer based off of the current
@@ -19,11 +19,11 @@ import (
 // CONTRACT: Tx must implement FeeTx interface
 type FeeMarketCheckDecorator struct {
 	feemarketKeeper    FeeMarketKeeper
-	deductFeeDecorator ante.DeductFeeDecorator
+	deductFeeDecorator authante.DeductFeeDecorator
 }
 
-func NewFeeMarketCheckDecorator(fmk FeeMarketKeeper, ak AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, tfc ante.TxFeeChecker) FeeMarketCheckDecorator {
-	deductFeeDecoratior := ante.NewDeductFeeDecorator(ak, bk, fk, tfc)
+func NewFeeMarketCheckDecorator(fmk FeeMarketKeeper, ak authante.AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, tfc authante.TxFeeChecker) FeeMarketCheckDecorator {
+	deductFeeDecoratior := authante.NewDeductFeeDecorator(ak, bk, fk, tfc)
 	return FeeMarketCheckDecorator{
 		feemarketKeeper:    fmk,
 		deductFeeDecorator: deductFeeDecoratior,
