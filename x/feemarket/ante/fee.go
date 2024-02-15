@@ -8,6 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 )
 
 // FeeMarketCheckDecorator checks sufficient fees from the fee payer based off of the current
@@ -16,12 +18,15 @@ import (
 // Call next AnteHandler if fees successfully checked.
 // CONTRACT: Tx must implement FeeTx interface
 type FeeMarketCheckDecorator struct {
-	feemarketKeeper FeeMarketKeeper
+	feemarketKeeper    FeeMarketKeeper
+	deductFeeDecorator ante.DeductFeeDecorator
 }
 
-func NewFeeMarketCheckDecorator(fmk FeeMarketKeeper) FeeMarketCheckDecorator {
+func NewFeeMarketCheckDecorator(fmk FeeMarketKeeper, ak AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, tfc ante.TxFeeChecker) FeeMarketCheckDecorator {
+	deductFeeDecoratior := ante.NewDeductFeeDecorator(ak, bk, fk, tfc)
 	return FeeMarketCheckDecorator{
-		feemarketKeeper: fmk,
+		feemarketKeeper:    fmk,
+		deductFeeDecorator: deductFeeDecoratior,
 	}
 }
 
@@ -48,6 +53,12 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	params, err := dfd.feemarketKeeper.GetParams(ctx)
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market params")
+	}
+
+	// fallback to default fee deduction if fee market is disabled
+	// fee deduction will be skipped in post handler
+	if !params.Enabled {
+		return dfd.deductFeeDecorator.AnteHandle(ctx, tx, simulate, next)
 	}
 
 	feeDenom := params.DefaultFeeDenom
