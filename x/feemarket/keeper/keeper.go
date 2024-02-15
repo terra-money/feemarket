@@ -115,6 +115,13 @@ func (k *Keeper) SetFeeDenomParam(ctx sdk.Context, fdp types.FeeDenomParam) erro
 
 // DeleteFeeDenomParam removes the feeDenomParam for feeDenom.
 func (k *Keeper) DeleteFeeDenomParam(ctx sdk.Context, feeDenom string) error {
+	params, err := k.GetParams(ctx)
+	if err != nil {
+		return err
+	}
+	if params.DefaultFeeDenom == feeDenom {
+		return sdkerrors.ErrInvalidRequest.Wrapf("cannot delete default fee denom: %s", feeDenom)
+	}
 	store := ctx.KVStore(k.storeKey)
 
 	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
