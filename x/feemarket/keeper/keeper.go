@@ -125,6 +125,12 @@ func (k *Keeper) DeleteFeeDenomParam(ctx sdk.Context, feeDenom string) error {
 	store := ctx.KVStore(k.storeKey)
 
 	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
+
+	bz := store.Get(key)
+	if bz == nil {
+		return sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
+	}
+
 	store.Delete(key)
 
 	return nil
