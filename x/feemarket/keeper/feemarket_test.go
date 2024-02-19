@@ -340,7 +340,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 		lr := math.LegacyMustNewDecFromStr("0.125")
 		increase := fdp.BaseFee.Mul(lr).TruncateInt()
 
-		fdp.BaseFee = types.DefaultMinBaseFee.Add(increase.ToLegacyDec()).Sub(math.LegacyOneDec())
+		fdp.BaseFee = types.DefaultAIMDMinBaseFee.Add(increase.ToLegacyDec()).Sub(math.LegacyOneDec())
 		state.LearningRate = lr
 
 		s.setGenesis(params, state, fdp)

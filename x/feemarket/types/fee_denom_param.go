@@ -29,6 +29,10 @@ func (s *FeeDenomParam) ValidateBasic() error {
 		return fmt.Errorf("base fee must be positive")
 	}
 
+	if s.MinBaseFee.GT(s.BaseFee) {
+		return fmt.Errorf("min base fee cannot be greater than base fee")
+	}
+
 	if s.FeeDenom == "" {
 		return fmt.Errorf("fee denom cannot be empty")
 	}
