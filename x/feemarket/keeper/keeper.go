@@ -137,7 +137,7 @@ func (k *Keeper) DeleteFeeDenomParam(ctx sdk.Context, feeDenom string) error {
 }
 
 // GetState returns the feemarket module's state.
-func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
+func (k *Keeper) GetState(ctx sdk.Context) types.State {
 	store := ctx.KVStore(k.storeKey)
 
 	key := types.KeyState
@@ -145,10 +145,10 @@ func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
 
 	state := types.State{}
 	if err := state.Unmarshal(bz); err != nil {
-		return types.State{}, err
+		panic(err)
 	}
 
-	return state, nil
+	return state
 }
 
 // SetState sets the feemarket module's state.

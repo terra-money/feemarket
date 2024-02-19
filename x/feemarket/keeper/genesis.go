@@ -42,10 +42,7 @@ func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	}
 
 	// Get the feemarket module's state.
-	state, err := k.GetState(ctx)
-	if err != nil {
-		panic(err)
-	}
+	state := k.GetState(ctx)
 
 	// Get the feemarket module's fee denom parameters.
 	fdps, err := k.GetFeeDenomParams(ctx)

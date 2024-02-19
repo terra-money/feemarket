@@ -21,10 +21,7 @@ func (k *Keeper) UpdateFeeMarket(ctx sdk.Context) error {
 		return nil
 	}
 
-	state, err := k.GetState(ctx)
-	if err != nil {
-		panic(err)
-	}
+	state := k.GetState(ctx)
 
 	// Update the learning rate based on the block utilization seen in the
 	// current block. This is the AIMD learning rate adjustment algorithm.
@@ -85,11 +82,7 @@ func (k *Keeper) GetBaseFee(ctx sdk.Context, feeDenom string) (math.LegacyDec, e
 
 // GetLearningRate returns the learning rate from the fee market state.
 func (k *Keeper) GetLearningRate(ctx sdk.Context) (math.LegacyDec, error) {
-	state, err := k.GetState(ctx)
-	if err != nil {
-		return math.LegacyDec{}, err
-	}
-
+	state := k.GetState(ctx)
 	return state.LearningRate, nil
 }
 
