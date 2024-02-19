@@ -18,28 +18,24 @@ func NewParams(
 	alpha math.LegacyDec,
 	beta math.LegacyDec,
 	theta math.LegacyDec,
-	delta math.LegacyDec,
 	targetBlockSize uint64,
 	maxBlockSize uint64,
-	minBaseFee math.Int,
 	minLearingRate math.LegacyDec,
 	maxLearningRate math.LegacyDec,
-	feeDenom string,
 	enabled bool,
+	defaultFeeDenom string,
 ) Params {
 	return Params{
 		Alpha:                  alpha,
 		Beta:                   beta,
 		Theta:                  theta,
-		Delta:                  delta,
-		MinBaseFee:             minBaseFee,
 		MinLearningRate:        minLearingRate,
 		MaxLearningRate:        maxLearningRate,
 		TargetBlockUtilization: targetBlockSize,
 		MaxBlockUtilization:    maxBlockSize,
 		Window:                 window,
-		FeeDenom:               feeDenom,
 		Enabled:                enabled,
+		DefaultFeeDenom:        defaultFeeDenom,
 	}
 }
 
@@ -61,10 +57,6 @@ func (p *Params) ValidateBasic() error {
 		return fmt.Errorf("theta cannot be nil and must be between [0, 1]")
 	}
 
-	if p.Delta.IsNil() || p.Delta.IsNegative() {
-		return fmt.Errorf("delta cannot be nil and must be between [0, inf)")
-	}
-
 	if p.TargetBlockUtilization == 0 {
 		return fmt.Errorf("target block size cannot be zero")
 	}
@@ -77,10 +69,6 @@ func (p *Params) ValidateBasic() error {
 		return fmt.Errorf("max block size cannot be greater than target block size times %d", MaxBlockUtilizationRatio)
 	}
 
-	if p.MinBaseFee.IsNil() || !p.MinBaseFee.GTE(math.ZeroInt()) {
-		return fmt.Errorf("min base fee cannot be nil and must be greater than or equal to zero")
-	}
-
 	if p.MaxLearningRate.IsNil() || p.MinLearningRate.IsNegative() {
 		return fmt.Errorf("min learning rate cannot be negative or nil")
 	}
@@ -91,10 +79,6 @@ func (p *Params) ValidateBasic() error {
 
 	if p.MinLearningRate.GT(p.MaxLearningRate) {
 		return fmt.Errorf("min learning rate cannot be greater than max learning rate")
-	}
-
-	if p.FeeDenom == "" {
-		return fmt.Errorf("fee denom must be set")
 	}
 
 	return nil

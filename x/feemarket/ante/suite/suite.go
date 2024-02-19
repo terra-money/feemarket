@@ -21,6 +21,7 @@ import (
 	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
 	"github.com/skip-mev/feemarket/x/feemarket/ante/mocks"
 	feemarketpost "github.com/skip-mev/feemarket/x/feemarket/post"
+	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
 type TestSuite struct {
@@ -99,6 +100,10 @@ func (s *TestSuite) SetupHandlers(mock bool) {
 		authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		feemarketante.NewFeeMarketCheckDecorator( // fee market replaces fee deduct decorator
 			s.FeeMarketKeeper,
+			s.AccountKeeper,
+			bankKeeper,
+			feeGrantKeeper,
+			nil,
 		),
 		authante.NewSigGasConsumeDecorator(s.AccountKeeper, authante.DefaultSigVerificationGasConsumer),
 	}
@@ -245,7 +250,7 @@ func (s *TestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums []uint64, 
 
 // NewTestFeeAmount is a test fee amount.
 func NewTestFeeAmount() sdk.Coins {
-	return sdk.NewCoins(sdk.NewInt64Coin("stake", 150))
+	return sdk.NewCoins(sdk.NewInt64Coin(types.DefaultFeeDenom, 150))
 }
 
 // NewTestGasLimit is a test fee gas limit.

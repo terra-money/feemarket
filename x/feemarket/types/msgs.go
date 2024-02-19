@@ -16,7 +16,7 @@ func NewMsgParams(authority string, params Params) MsgParams {
 
 // GetSigners implements GetSigners for the msg.
 func (m *MsgParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(m.Authority)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic determines whether the information in the message is formatted correctly, specifically

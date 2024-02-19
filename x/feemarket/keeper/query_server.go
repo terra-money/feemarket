@@ -28,18 +28,23 @@ func (q QueryServer) Params(goCtx context.Context, _ *types.ParamsRequest) (*typ
 	return &types.ParamsResponse{Params: params}, err
 }
 
-// State defines a method that returns the current feemarket state.
-func (q QueryServer) State(goCtx context.Context, _ *types.StateRequest) (*types.StateResponse, error) {
+// State defines a method that returns the current feemarket states. If feeDenom is nil, return all states
+func (q QueryServer) State(goCtx context.Context, query *types.StateRequest) (*types.StateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	state, err := q.k.GetState(ctx)
-	return &types.StateResponse{State: state}, err
+	state := q.k.GetState(ctx)
+	return &types.StateResponse{State: state}, nil
 }
 
-// BaseFee defines a method that returns the current feemarket base fee.
-func (q QueryServer) BaseFee(goCtx context.Context, _ *types.BaseFeeRequest) (*types.BaseFeeResponse, error) {
+// State defines a method that returns the current feemarket states. If feeDenom is nil, return all states
+func (q QueryServer) FeeDenomParam(goCtx context.Context, query *types.FeeDenomParamRequest) (*types.FeeDenomParamResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	fees, err := q.k.GetMinGasPrices(ctx)
-	return &types.BaseFeeResponse{Fees: fees}, err
+	if query.FeeDenom == "" {
+		fdps, err := q.k.GetFeeDenomParams(ctx)
+		return &types.FeeDenomParamResponse{FeeDenomParams: fdps}, err
+	}
+
+	fdp, err := q.k.GetFeeDenomParam(ctx, query.FeeDenom)
+	return &types.FeeDenomParamResponse{FeeDenomParams: []types.FeeDenomParam{*fdp}}, err
 }

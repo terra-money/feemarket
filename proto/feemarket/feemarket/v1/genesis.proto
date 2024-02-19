@@ -14,24 +14,43 @@ message GenesisState {
   // and the AIMD EIP-1559 fee market.
   Params params = 1 [ (gogoproto.nullable) = false ];
 
-  // State contains the current state of the AIMD fee market.
+  // States contains the current states of the AIMD fee market for all FeeDenom.
   State state = 2 [ (gogoproto.nullable) = false ];
+
+  // FeeDenomParams contains the current state of the fee denom.
+  repeated FeeDenomParam fee_denom_params = 3 [ (gogoproto.nullable) = false ];
 }
 
-// State is utilized to track the current state of the fee market. This includes
-// the current base fee, learning rate, and block utilization within the
-// specified AIMD window.
-message State {
-  // BaseFee is the current base fee. This is denominated in the fee per gas
-  // unit.
-  string base_fee = 1 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+// FeeDenomParam is utilized to track the current state of the fee denom. This includes
+// the current base fee, min base fee.
+message FeeDenomParam {
+  // FeeDenom is the denom that will be used for all fee payments.
+  string fee_denom = 1;
+
+  // MinBaseFee determines the initial base fee of the module and the global
+  // minimum for the network. This is denominated in fee per gas unit.
+  string min_base_fee = 2 [
+    (cosmos_proto.scalar) = "cosmos.Legacy",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
+  // BaseFee is the current base fee. This is denominated in the fee per gas
+  // unit.
+  string base_fee = 3 [
+    (cosmos_proto.scalar) = "cosmos.Legacy",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+
+// State is utilized to track the current state of the fee market. This includes
+// the current learning rate, and block utilization within the
+// specified AIMD window.
+message State {
   // LearningRate is the current learning rate.
-  string learning_rate = 2 [
+  string learning_rate = 1 [
     (cosmos_proto.scalar) = "cosmos.Legacy",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -40,8 +59,8 @@ message State {
   // Window contains a list of the last blocks' utilization values. This is used
   // to calculate the next base fee. This stores the number of units of gas
   // consumed per block.
-  repeated uint64 window = 3;
+  repeated uint64 window = 2;
 
   // Index is the index of the current block in the block utilization window.
-  uint64 index = 4;
+  uint64 index = 3;
 }

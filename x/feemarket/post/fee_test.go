@@ -102,10 +102,10 @@ func TestSendTip(t *testing.T) {
 func TestPostHandle(t *testing.T) {
 	// Same data for every test case
 	gasLimit := antesuite.NewTestGasLimit()
-	validFeeAmount := types.DefaultMinBaseFee.MulRaw(int64(gasLimit))
+	validFeeAmount := types.DefaultMinBaseFee.MulInt64(int64(gasLimit)).TruncateInt()
 	validFeeAmountWithTip := validFeeAmount.Add(sdk.NewInt(100))
-	validFee := sdk.NewCoins(sdk.NewCoin("stake", validFeeAmount))
-	validFeeWithTip := sdk.NewCoins(sdk.NewCoin("stake", validFeeAmountWithTip))
+	validFee := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmount))
+	validFeeWithTip := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmountWithTip))
 
 	testCases := []antesuite.TestCase{
 		{
@@ -166,7 +166,6 @@ func TestPostHandle(t *testing.T) {
 			Malleate: func(s *antesuite.TestSuite) antesuite.TestCaseArgs {
 				accs := s.CreateTestAccounts(1)
 				s.MockBankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, accs[0].Account.GetAddress(), types.FeeCollectorName, mock.Anything).Return(nil)
-				s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 				return antesuite.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].Account.GetAddress())},
@@ -185,7 +184,6 @@ func TestPostHandle(t *testing.T) {
 			Malleate: func(s *antesuite.TestSuite) antesuite.TestCaseArgs {
 				accs := s.CreateTestAccounts(1)
 				s.MockBankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, accs[0].Account.GetAddress(), types.FeeCollectorName, mock.Anything).Return(nil)
-				s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 				return antesuite.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].Account.GetAddress())},

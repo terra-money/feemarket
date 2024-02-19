@@ -12,13 +12,12 @@ import (
 // both the minimum and current base fee to the same value.
 func NewState(
 	windowSize uint64,
-	baseFee math.Int,
 	learningRate math.LegacyDec,
+	index uint64,
 ) State {
 	return State{
 		Window:       make([]uint64, windowSize),
-		BaseFee:      baseFee,
-		Index:        0,
+		Index:        index,
 		LearningRate: learningRate,
 	}
 }
@@ -44,19 +43,32 @@ func (s *State) IncrementHeight() {
 // UpdateBaseFee updates the learning rate and base fee based on the AIMD
 // learning rate adjustment algorithm. The learning rate is updated
 // based on the average utilization of the block window. The base fee is
-// update using the new learning rate and the delta adjustment. Please
+// update using the new learning rate. Please
 // see the EIP-1559 specification for more details.
-func (s *State) UpdateBaseFee(params Params) (fee math.Int) {
+func (s *FeeDenomParam) UpdateBaseFee(params Params, state State, learningRateAdjustment math.LegacyDec) (fee math.LegacyDec) {
 	// Panic catch in case there is an overflow
 	defer func() {
 		if rec := recover(); rec != nil {
-			s.BaseFee = params.MinBaseFee
+			s.BaseFee = s.MinBaseFee
 			fee = s.BaseFee
 		}
 	}()
 
+	// Update the base fee.
+	fee = s.BaseFee.Mul(learningRateAdjustment)
+
+	// Ensure the base fee is greater than the minimum base fee.
+	if fee.LT(s.MinBaseFee) {
+		fee = s.MinBaseFee
+	}
+
+	s.BaseFee = fee
+	return s.BaseFee
+}
+
+func GetLearningRateAdjustment(params Params, state State) math.LegacyDec {
 	// Calculate the new base fee with the learning rate adjustment.
-	currentBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(s.Window[s.Index]))
+	currentBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(state.Window[state.Index]))
 	targetBlockSize := math.LegacyNewDecFromInt(math.NewIntFromUint64(params.TargetBlockUtilization))
 	utilization := (currentBlockSize.Sub(targetBlockSize)).Quo(targetBlockSize)
 
@@ -64,21 +76,9 @@ func (s *State) UpdateBaseFee(params Params) (fee math.Int) {
 	//
 	// This is equivalent to
 	// 1 + (learningRate * (currentBlockSize - targetBlockSize) / targetBlockSize)
-	learningRateAdjustment := math.LegacyOneDec().Add(s.LearningRate.Mul(utilization))
+	learningRateAdjustment := math.LegacyOneDec().Add(state.LearningRate.Mul(utilization))
 
-	// Calculate the delta adjustment.
-	net := math.LegacyNewDecFromInt(s.GetNetUtilization(params)).Mul(params.Delta)
-
-	// Update the base fee.
-	fee = (math.LegacyNewDecFromInt(s.BaseFee).Mul(learningRateAdjustment)).Add(net).TruncateInt()
-
-	// Ensure the base fee is greater than the minimum base fee.
-	if fee.LT(params.MinBaseFee) {
-		fee = params.MinBaseFee
-	}
-
-	s.BaseFee = fee
-	return s.BaseFee
+	return learningRateAdjustment
 }
 
 // UpdateLearningRate updates the learning rate based on the AIMD
@@ -160,12 +160,12 @@ func (s *State) ValidateBasic() error {
 		return fmt.Errorf("block utilization window cannot be nil or empty")
 	}
 
-	if s.BaseFee.IsNil() || s.BaseFee.LTE(math.ZeroInt()) {
-		return fmt.Errorf("base fee must be positive")
-	}
-
 	if s.LearningRate.IsNil() || s.LearningRate.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("learning rate must be positive")
+	}
+
+	if s.Index < 0 || s.Index >= uint64(len(s.Window)) {
+		return fmt.Errorf("index cannot exceed window size or be negative")
 	}
 
 	return nil

@@ -37,7 +37,6 @@ AIMD EIP-1559 introduces a few new parameters to the EIP-1559 fee market:
 * **`Gamma`**: This determines whether you are additively increase or multiplicatively decreasing the learning rate based on the target and current block utilization. This must be a value that is between `[0, 1]`. For example, if `Gamma = 0.25`, then we multiplicatively decrease the learning rate if the average ratio of current block size to max block size over some window of blocks is within `(0.25, 0.75)` and additively increase it if outside that range.
 * **`MaxLearningRate`**: This is the maximum learning rate that can be applied to the base fee. This must be a value that is between `[0, 1]`.
 * **`MinLearningRate`**: This is the minimum learning rate that can be applied to the base fee. This must be a value that is between `[0, 1]`.
-* **`Delta`**: This is a trailing constant that is used to smooth the learning rate. In order to further converge the long term net gas usage and net gas goal, we introduce another integral term which tracks how much gas off from 0 gas we’re at. We add a constant c which basically forces the fee to slowly trend in some direction until this has gone to 0.
 
 The calculation for the updated base fee for the next block is as follows:
 
@@ -54,8 +53,8 @@ if blockConsumption < gamma || blockConsumption > 1 - gamma {
     newLearningRate := max(MinLearningRate, beta * currencyLearningRate)
 }
 
-// netGasDelta returns the net gas difference between every block in the window and the target block size.
-newBaseFee := currentBaseFee * (1 + newLearningRate * (currentBlockSize - targetBlockSize) / targetBlockSize) + delta * netGasDelta(window)
+// netBaseFee returns the net gas difference between every block in the window and the target block size.
+newBaseFee := currentBaseFee * (1 + newLearningRate * (currentBlockSize - targetBlockSize) / targetBlockSize) 
 ```
 
 ## Examples
@@ -72,7 +71,6 @@ newBaseFee := currentBaseFee * (1 + newLearningRate * (currentBlockSize - target
 > * `MIN_LEARNING_RATE = 0.0125`
 > * `Current Learning Rate = 0.125`
 > * `Previous Base Fee = 10`
-> * `Delta = 0`
 
 ### Block is Completely Empty
 
@@ -119,5 +117,4 @@ It is entirely possible to implement the default EIP-1559 fee market with the AI
 * `Gamma = 1.0`
 * `MAX_LEARNING_RATE = 0.125`
 * `MIN_LEARNING_RATE = 0.125`
-* `Delta = 0`
 * `Window = 1`

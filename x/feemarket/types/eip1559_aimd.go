@@ -28,11 +28,6 @@ var (
 	// the learning rate.
 	DefaultAIMDTheta = math.LegacyMustNewDecFromStr("0.25")
 
-	// DefaultAIMDDelta is the default delta value for how much we additively
-	// increase or decrease the base fee when the net block utilization within
-	// the window is not equal to the target utilization.
-	DefaultAIMDDelta = math.LegacyMustNewDecFromStr("0.0")
-
 	// DefaultAIMDTargetBlockSize is the default target block utilization. This
 	// is the default on Ethereum. This denominated in units of gas consumed in
 	// a block.
@@ -46,7 +41,7 @@ var (
 	// DefaultAIMDMinBaseFee is the default minimum base fee. This is the
 	// default on Ethereum. Note that ethereum is denominated in 1e18 wei.
 	// Cosmos chains will likely want to change this to 1e6.
-	DefaultAIMDMinBaseFee = math.NewInt(1_000_000_000)
+	DefaultAIMDMinBaseFee = math.LegacyNewDec(1_000_000_000)
 
 	// DefaultAIMDMinLearningRate is the default minimum learning rate.
 	DefaultAIMDMinLearningRate = math.LegacyMustNewDecFromStr("0.01")
@@ -56,6 +51,9 @@ var (
 
 	// DefaultAIMDFeeDenom is the Cosmos SDK default bond denom.
 	DefaultAIMDFeeDenom = DefaultFeeDenom
+
+	// TestFeeDenom is the other fee denom for testing purpose.
+	AIMDTestFeeDenom = TestFeeDenom
 )
 
 // DefaultAIMDParams returns a default set of parameters that implements
@@ -68,14 +66,12 @@ func DefaultAIMDParams() Params {
 		DefaultAIMDAlpha,
 		DefaultAIMDBeta,
 		DefaultAIMDTheta,
-		DefaultAIMDDelta,
 		DefaultAIMDTargetBlockSize,
 		DefaultAIMDMaxBlockSize,
-		DefaultAIMDMinBaseFee,
 		DefaultAIMDMinLearningRate,
 		DefaultAIMDMaxLearningRate,
-		DefaultAIMDFeeDenom,
 		true,
+		DefaultFeeDenom,
 	)
 }
 
@@ -86,13 +82,30 @@ func DefaultAIMDParams() Params {
 func DefaultAIMDState() State {
 	return NewState(
 		DefaultAIMDWindow,
-		DefaultAIMDMinBaseFee,
 		DefaultAIMDMinLearningRate,
+		DefaultIndex,
 	)
+}
+
+// DefaultFeeDenomParam returns the default state for the EIP-1559 fee market
+// implementation without the AIMD learning rate adjustment algorithm.
+func DefaultAIMDFeeDenomParam() []FeeDenomParam {
+	return []FeeDenomParam{
+		*NewFeeDenomParam(
+			TestFeeDenom,
+			DefaultAIMDMinBaseFee,
+			DefaultAIMDMinBaseFee,
+		),
+		*NewFeeDenomParam(
+			DefaultFeeDenom,
+			math.LegacyMustNewDecFromStr("0.0015"),
+			math.LegacyMustNewDecFromStr("0.0015"),
+		),
+	}
 }
 
 // DefaultAIMDGenesisState returns a default genesis state that implements
 // the AIMD EIP-1559 fee market implementation.
 func DefaultAIMDGenesisState() *GenesisState {
-	return NewGenesisState(DefaultAIMDParams(), DefaultAIMDState())
+	return NewGenesisState(DefaultAIMDParams(), DefaultAIMDState(), DefaultFeeDenomParam())
 }

@@ -15,6 +15,12 @@ service Msg {
 
   // Params defines a method for updating the feemarket module parameters.
   rpc Params(MsgParams) returns (MsgParamsResponse);
+
+  // State defines a method for adding/updating the feedenomparam.
+  rpc FeeDenomParam(MsgFeeDenomParam) returns (MsgFeeDenomParamResponse);
+
+  // RemoveFeeDenomParam defines a method for removing the feedenomparam.
+  rpc RemoveFeeDenomParam(MsgRemoveFeeDenomParam) returns (MsgRemoveFeeDenomParamResponse);
 }
 
 // MsgParams defines the Msg/Params request type. It contains the
@@ -31,3 +37,44 @@ message MsgParams {
 
 // MsgParamsResponse defines the Msg/Params response type.
 message MsgParamsResponse {}
+
+// MsgFeeDenomParam defines the Msg/FeeDenomParam request type. It contains the
+// new feeDenomParam of feeDenom for the feemarket module.
+message MsgFeeDenomParam {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // FeeDenom is the denom that will be used for all fee payments.
+  string fee_denom = 1;
+
+  // MinBaseFee determines the initial base fee of the fee denom.
+  // This is denominated in fee per gas unit.
+  string min_base_fee = 2 [
+    (cosmos_proto.scalar) = "cosmos.Legacy",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Authority defines the authority that is updating the feemarket module
+  // parameters.
+  string authority = 3 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgFeeDenomParamResponse defines the Msg/State response type.
+message MsgFeeDenomParamResponse {}
+
+// MsgRemoveFeeDenomParam defines the Msg/RemoveFeeDenomParam request type. It
+// contains the feeDenom to be removed from the feemarket module.
+message MsgRemoveFeeDenomParam {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // FeeDenom is the denom that will be removed from the feemarket module.
+  string fee_denom = 1;
+
+  // Authority defines the authority that is updating the feemarket module
+  // parameters.
+  string authority = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgRemoveFeeDenomParamResponse defines the Msg/RemoveFeeDenomParam response
+// type.
+message MsgRemoveFeeDenomParamResponse {}

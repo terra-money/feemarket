@@ -20,7 +20,7 @@ var (
 	// config params
 	numValidators = 3
 	numFullNodes  = 1
-	denom         = "stake"
+	denom         = "uluna"
 
 	image = ibc.DockerImage{
 		Repository: "feemarket-e2e",
@@ -42,20 +42,29 @@ var (
 				feemarkettypes.DefaultDelta,
 				feemarkettypes.DefaultTargetBlockUtilization,
 				feemarkettypes.DefaultMaxBlockUtilization,
-				sdk.NewInt(1000),
 				feemarkettypes.DefaultMinLearningRate,
 				feemarkettypes.DefaultMaxLearningRate,
-				feemarkettypes.DefaultFeeDenom,
 				true,
 			),
 		},
 		{
-			Key: "app_state.feemarket.state",
-			Value: feemarkettypes.NewState(
-				feemarkettypes.DefaultWindow,
-				sdk.NewInt(1000),
-				feemarkettypes.DefaultMaxLearningRate,
-			),
+			Key: "app_state.feemarket.states",
+			Value: []feemarkettypes.State{
+				feemarkettypes.NewState(
+					feemarkettypes.DefaultFeeDenom,
+					feemarkettypes.DefaultWindow,
+					sdk.NewInt(1000),
+					sdk.NewInt(1000),
+					feemarkettypes.DefaultMaxLearningRate,
+				),
+				feemarkettypes.NewState(
+					feemarkettypes.TestFeeDenom,
+					feemarkettypes.DefaultWindow,
+					sdk.NewInt(1000),
+					sdk.NewInt(1000),
+					feemarkettypes.DefaultMaxLearningRate,
+				),
+			},
 		},
 	}
 

@@ -51,7 +51,7 @@ func TestDeductFeesNoDelegation(t *testing.T) {
 			malleate: func(s *antesuite.TestSuite) (antesuite.TestAccount, sdk.AccAddress) {
 				accs := s.CreateTestAccounts(1)
 				s.MockBankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, accs[0].Account.GetAddress(), types.FeeCollectorName, mock.Anything).Return(nil).Once()
-				s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+				// s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 				return accs[0], nil
 			},
@@ -79,7 +79,7 @@ func TestDeductFeesNoDelegation(t *testing.T) {
 				accs := s.CreateTestAccounts(2)
 				s.MockFeeGrantKeeper.On("UseGrantedFees", mock.Anything, accs[1].Account.GetAddress(), accs[0].Account.GetAddress(), mock.Anything, mock.Anything).Return(nil).Once()
 				s.MockBankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, accs[1].Account.GetAddress(), types.FeeCollectorName, mock.Anything).Return(nil).Once()
-				s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+				// s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 				return accs[0], accs[1].Account.GetAddress()
 			},
@@ -134,7 +134,7 @@ func TestDeductFeesNoDelegation(t *testing.T) {
 
 			signer, feeAcc := stc.malleate(s)
 
-			fee := sdk.NewCoins(sdk.NewInt64Coin("stake", tc.fee))
+			fee := sdk.NewCoins(sdk.NewInt64Coin(types.TestFeeDenom, tc.fee))
 			msgs := []sdk.Msg{testdata.NewTestMsg(signer.Account.GetAddress())}
 
 			acc := s.AccountKeeper.GetAccount(s.Ctx, signer.Account.GetAddress())

@@ -13,7 +13,7 @@ import (
 // AnteHandlerOptions are the options required for constructing an SDK AnteHandler with the fee market injected.
 type AnteHandlerOptions struct {
 	BaseOptions     authante.HandlerOptions
-	AccountKeeper   feemarketante.AccountKeeper
+	AccountKeeper   authante.AccountKeeper
 	FeeMarketKeeper feemarketante.FeeMarketKeeper
 }
 
@@ -46,6 +46,10 @@ func NewAnteHandler(options AnteHandlerOptions) (sdk.AnteHandler, error) {
 		authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		feemarketante.NewFeeMarketCheckDecorator( // fee market check replaces fee deduct decorator
 			options.FeeMarketKeeper,
+			options.AccountKeeper,
+			options.BaseOptions.BankKeeper,
+			options.BaseOptions.FeegrantKeeper,
+			options.BaseOptions.TxFeeChecker,
 		), // fees are deducted in the fee market deduct post handler
 		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 		authante.NewValidateSigCountDecorator(options.AccountKeeper),

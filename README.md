@@ -2,17 +2,16 @@
 
 ## Abstract
 
-This document specifies the feemarket module.
+This document specifies the feemarket module that was modified for the Terra blockchain (Phoenix-1).
 
 The feemarket module is an implementation of the Additive Increase Multiplicative Decrease (AIMD) EIP-1559 
 feemarket.  More information about the implementation can be found [here](./x/feemarket/README.md).
 
-This module is planned to be used in the Cosmos Hub.
+This module is planned to be used in Terra mainnet.
 
 ## Contents
 
 * [State](#state)
-    * [BaseFee](#basefee)
     * [LearningRate](#learningrate)
     * [Window](#window)
     * [Index](#index)
@@ -20,20 +19,21 @@ This module is planned to be used in the Cosmos Hub.
 * [Messages](#messages)
 * [Events](#events)
     * [FeePay](#feepay)
-    * [TipPay](#tippay)
 * [Parameters](#parameters)
     * [Alpha](#alpha)
     * [Beta](#beta)
     * [Theta](#theta)
-    * [Delta](#delta)
-    * [MinBaseFee](#minbasefee)
     * [MinLearningRate](#minlearningrate)
     * [MaxLearningRate](#maxlearningrate)
     * [TargetBlockUtilization](#targetblockutilization)
     * [MaxBlockUtilization](#maxblockutilization)
     * [Window](#window)
-    * [FeeDenom](#feedenom)
+    * [DefaultFeeDenom](#defaultfeedenom)
     * [Enabled](#enabled)
+* [FeeDenomParams](#feedenomparams)
+    * [FeeDenom](#feedenom)
+    * [BaseFee](#basefee)
+    * [MinBaseFee](#minbasefee)
 * [Client](#client)
     * [CLI](#cli)
     * [Query](#query)
@@ -52,11 +52,6 @@ aforementioned state:
 
 * State: `0x02 |ProtocolBuffer(State)`
 
-### BaseFee
-
-BaseFee is the current base fee. This is denominated in the fee per gas
-unit.
-
 ### LearningRate
 
 LearningRate is the current learning rate.
@@ -73,19 +68,11 @@ Index is the index of the current block in the block utilization window.
 
 ```protobuf
 // State is utilized to track the current state of the fee market. This includes
-// the current base fee, learning rate, and block utilization within the
+// the current learning rate, and block utilization within the
 // specified AIMD window.
 message State {
-  // BaseFee is the current base fee. This is denominated in the fee per gas
-  // unit.
-  string base_fee = 1 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
-
   // LearningRate is the current learning rate.
-  string learning_rate = 2 [
+  string learning_rate = 1 [
     (cosmos_proto.scalar) = "cosmos.Legacy",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -94,10 +81,10 @@ message State {
   // Window contains a list of the last blocks' utilization values. This is used
   // to calculate the next base fee. This stores the number of units of gas
   // consumed per block.
-  repeated uint64 window = 3;
+  repeated uint64 window = 2;
 
   // Index is the index of the current block in the block utilization window.
-  uint64 index = 4;
+  uint64 index = 3;
 }
 ```
 
@@ -108,19 +95,22 @@ The feemarket module provides a keeper interface for accessing the KVStore.
 ```go
 type FeeMarketKeeper interface {
 	// Get the current state from the store.
-    GetState(ctx sdk.Context) (types.State, error)
+  GetState(ctx sdk.Context) feemarkettypes.State
 
-    // Set the state in the store.
-    SetState(ctx sdk.Context, state types.State) error
+  // Set the state in the store.
+  SetState(ctx sdk.Context, state feemarkettypes.State) error
 
-    // Get the current params from the store.
-    GetParams(ctx sdk.Context) (types.Params, error)
+  // Get the current params from the store.
+  GetParams(ctx sdk.Context) (feemarkettypes.Params, error)
 
-    // Set the params in the store.
-    SetParams(ctx sdk.Context, params types.Params) error
+  // Set the params in the store.
+  SetParams(ctx sdk.Context, params feemarkettypes.Params) error
 	
-	// Get the current minimum gas prices (base fee) from the store.
-    GetMinGasPrices(ctx sdk.Context) (sdk.Coins, error)
+  // Get the current minimum gas prices (base fee) from the store.
+  GetMinGasPrice(ctx sdk.Context, feeDenom string) (sdk.DecCoin, error)
+
+  // Get the feeDenomParam for feeDenom
+  GetFeeDenomParam(ctx sdk.Context, feeDenom string) (*feemarkettypes.FeeDenomParam, error)
 }
 ```
 
@@ -171,31 +161,6 @@ The feemarket module emits the following events:
 }
 ```
 
-### TipPay
-
-```json
-{
-  "type": "tip_pay",
-  "attributes": [
-    {
-      "key": "tip",
-      "value": "{{sdk.Coins being payed}}",
-      "index": true
-    },
-    {
-      "key": "tip_payer",
-      "value": "{{sdk.AccAddress paying the tip}}",
-      "index": true
-    },
-    {
-      "key": "tip_payee",
-      "value": "{{sdk.AccAddress receiving the tip}}",
-      "index": true
-    }
-  ]
-}
-```
-
 ## Parameters
 
 The feemarket module stores it's params in state with the prefix of `0x01`,
@@ -223,17 +188,6 @@ above or below the target +/- threshold, we additively increase the
 learning rate by Alpha. Otherwise, we multiplicatively decrease the
 learning rate by Beta.
 
-### Delta
-
-Delta is the amount we additively increase/decrease the base fee when the
-net block utilization difference in the window is above/below the target
-utilization.
-
-### MinBaseFee
-
-MinBaseFee determines the initial base fee of the module and the global
-minimum for the network. This is denominated in fee per gas unit.
-
 ### MinLearningRate
 
 MinLearningRate is the lower bound for the learning rate.
@@ -257,9 +211,9 @@ Window defines the window size for calculating an adaptive learning rate
 over a moving window of blocks.  The default EIP1559 implementation uses
 a window of size 1.
 
-### FeeDenom
+### DefaultFeeDenom
 
-FeeDenom is the denom that will be used for all fee payments.
+DefaultFeeDenom is the default denom that will be used for fee estimation when feeDenom is not specified for a transaction.
 
 ### Enabled
 
@@ -271,7 +225,7 @@ through governance at a later time.
 // Params contains the required set of parameters for the EIP1559 fee market
 // plugin implementation.
 message Params {
-  // Alpha is the amount we additively increase the learninig rate
+  // Alpha is the amount we additively increase the learning rate
   // when it is above or below the target +/- threshold.
   string alpha = 1 [
     (cosmos_proto.scalar) = "cosmos.Dec",
@@ -297,56 +251,84 @@ message Params {
     (gogoproto.nullable) = false
   ];
 
-  // Delta is the amount we additively increase/decrease the base fee when the
-  // net block utilization difference in the window is above/below the target
-  // utilization.
-  string delta = 4 [
-    (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // MinBaseFee determines the initial base fee of the module and the global
-  // minimum
-  // for the network. This is denominated in fee per gas unit.
-  string min_base_fee = 5 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
-
   // MinLearningRate is the lower bound for the learning rate.
-  string min_learning_rate = 6 [
+  string min_learning_rate = 4 [
     (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // MaxLearningRate is the upper bound for the learning rate.
-  string max_learning_rate = 7 [
+  string max_learning_rate = 5 [
     (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // TargetBlockUtilization is the target block utilization.
-  uint64 target_block_utilization = 8;
+  uint64 target_block_utilization = 6;
 
   // MaxBlockUtilization is the maximum block utilization.
-  uint64 max_block_utilization = 9;
+  uint64 max_block_utilization = 7;
 
   // Window defines the window size for calculating an adaptive learning rate
   // over a moving window of blocks.
-  uint64 window = 10;
-
-  // FeeDenom is the denom that will be used for all fee payments.
-  string fee_denom = 11;
+  uint64 window = 8;
 
   // Enabled is a boolean that determines whether the EIP1559 fee market is
   // enabled.
-  bool enabled = 12;
+  bool enabled = 9;
+
+  // DefaultFeeDenom is the default fee denom for the EIP1559 fee market
+  // used to simulate transactions if there are no fees specified
+  string default_fee_denom = 10;
 }
 ```
+
+## FeeDenomParams
+
+* FeeDenomParams: `0x03 | ProtocolBuffer(FeeDenomParam)`
+* Maps each FeeDenom to a FeeDenomParam
+
+### FeeDenom
+
+FeeDenom is the token denomination for this FeeDenomParam
+
+### BaseFee
+
+BaseFee is the current base fee. This is denominated in the fee per gas
+unit.
+
+### MinBaseFee
+
+MinBaseFee determines the initial base fee and the minimum for the 
+network of the feeDenom. This is denominated in fee per gas unit.
+
+```protobuf
+// FeeDenomParam is utilized to track the current state of the fee denom. This includes
+// the current base fee, min base fee.
+message FeeDenomParam {
+  // FeeDenom is the denom that will be used for all fee payments.
+  string fee_denom = 1;
+
+  // MinBaseFee determines the initial base fee of the module and the global
+  // minimum for the network. This is denominated in fee per gas unit.
+  string min_base_fee = 2 [
+    (cosmos_proto.scalar) = "cosmos.Legacy",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // BaseFee is the current base fee. This is denominated in the fee per gas
+  // unit.
+  string base_fee = 3 [
+    (cosmos_proto.scalar) = "cosmos.Legacy",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+```
+
 
 ## Client
 
@@ -381,14 +363,12 @@ Example Output:
 ```yml
 alpha: "0.000000000000000000"
 beta: "1.000000000000000000"
-delta: "0.000000000000000000"
+default_fee_denom: uluna
 enabled: true
-fee_denom: stake
-max_block_utilization: "30000000"
+max_block_utilization: "400000"
 max_learning_rate: "0.125000000000000000"
-min_base_fee: "1000000"
 min_learning_rate: "0.125000000000000000"
-target_block_utilization: "15000000"
+target_block_utilization: "40000"
 theta: "0.000000000000000000"
 window: "1"
 ```
@@ -410,25 +390,46 @@ feemarketd query feemarket state
 Example Output:
 
 ```yml
-base_fee: "1000000"
 index: "0"
 learning_rate: "0.125000000000000000"
 window:
-  - "0"
+- "0"
 ```
 
-##### base-fee
+##### fee-denom-param
 
-The `base-fee` command allows users to query the current base-fee.
+The `base-fee` command allows users to query the current base-fee of fee_denom.
 
 ```shell
-feemarketd query feemarket base-fee [flags]
+feemarketd query feemarket base-fee [fee_denom] [flags]
 ```
 
 Example:
 
 ```shell
-feemarketd query feemarket base-fee
+feemarketd query feemarket base-fee stake
+```
+
+Example Output:
+
+```yml
+base_fee: "0.001500000000000000"
+fee_denom: uluna
+min_base_fee: "0.001500000000000000"
+```
+
+##### base-fee
+
+The `base-fee` command allows users to query the current base-fee of fee_denom.
+
+```shell
+feemarketd query feemarket base-fee [fee_denom] [flags]
+```
+
+Example:
+
+```shell
+feemarketd query feemarket base-fee stake
 ```
 
 Example Output:
@@ -465,15 +466,13 @@ Example Output:
     "alpha": "0",
     "beta": "1000000000000000000",
     "theta": "0",
-    "delta": "0",
-    "minBaseFee": "1000000",
     "minLearningRate": "125000000000000000",
     "maxLearningRate": "125000000000000000",
     "targetBlockUtilization": "15000000",
     "maxBlockUtilization": "30000000",
     "window": "1",
-    "feeDenom": "stake",
-    "enabled": true
+    "enabled": true,
+    "defaultFeeDenom": "stake",
   }
 }
 ```
@@ -499,11 +498,11 @@ Example Output:
 ```json
 {
   "state": {
-    "baseFee": "1000000",
     "learningRate": "125000000000000000",
     "window": [
       "0"
-    ]
+    ],
+    "index": 0
   }
 }
 ```

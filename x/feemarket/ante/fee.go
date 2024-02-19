@@ -8,6 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 )
 
 // FeeMarketCheckDecorator checks sufficient fees from the fee payer based off of the current
@@ -16,12 +18,15 @@ import (
 // Call next AnteHandler if fees successfully checked.
 // CONTRACT: Tx must implement FeeTx interface
 type FeeMarketCheckDecorator struct {
-	feemarketKeeper FeeMarketKeeper
+	feemarketKeeper    FeeMarketKeeper
+	deductFeeDecorator authante.DeductFeeDecorator
 }
 
-func NewFeeMarketCheckDecorator(fmk FeeMarketKeeper) FeeMarketCheckDecorator {
+func NewFeeMarketCheckDecorator(fmk FeeMarketKeeper, ak authante.AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, tfc authante.TxFeeChecker) FeeMarketCheckDecorator {
+	deductFeeDecoratior := authante.NewDeductFeeDecorator(ak, bk, fk, tfc)
 	return FeeMarketCheckDecorator{
-		feemarketKeeper: fmk,
+		feemarketKeeper:    fmk,
+		deductFeeDecorator: deductFeeDecoratior,
 	}
 }
 
@@ -41,7 +46,27 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, sdkerrors.ErrInvalidGasLimit.Wrapf("must provide positive gas")
 	}
 
-	minGasPrices, err := dfd.feemarketKeeper.GetMinGasPrices(ctx)
+	if !simulate && ctx.BlockHeight() > 0 && feeTx.GetFee().Len() != 1 {
+		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
+	}
+
+	params, err := dfd.feemarketKeeper.GetParams(ctx)
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "unable to get fee market params")
+	}
+
+	// fallback to default fee deduction if fee market is disabled
+	// fee deduction will be skipped in post handler
+	if !params.Enabled {
+		return dfd.deductFeeDecorator.AnteHandle(ctx, tx, simulate, next)
+	}
+
+	feeDenom := params.DefaultFeeDenom
+	if feeTx.GetFee().Len() == 1 {
+		feeDenom = feeTx.GetFee().GetDenomByIndex(0)
+	}
+
+	minGasPricesDecCoin, err := dfd.feemarketKeeper.GetMinGasPrice(ctx, feeDenom)
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")
 	}
@@ -50,87 +75,70 @@ func (dfd FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	gas := feeTx.GetGas() // use provided gas limit
 
 	ctx.Logger().Info("fee deduct ante handle",
-		"min gas prices", minGasPrices,
+		"min gas prices", minGasPricesDecCoin,
 		"fee", fee,
 		"gas limit", gas,
 	)
 
 	if !simulate {
-		fee, _, err = CheckTxFees(ctx, minGasPrices, feeTx, true)
-		if err != nil {
+		if err = CheckTxFees(ctx, minGasPricesDecCoin, feeTx); err != nil {
 			return ctx, errorsmod.Wrapf(err, "error checking fee")
 		}
+		// use newCtx to set priority and min gas prices for transaction
+		if params.DefaultFeeDenom == fee[0].Denom {
+			ctx = ctx.WithPriority(getTxPriority(fee[0], int64(gas))).WithMinGasPrices(sdk.NewDecCoins(minGasPricesDecCoin))
+		} else {
+			ctx = ctx.WithPriority(0).WithMinGasPrices(sdk.NewDecCoins(minGasPricesDecCoin))
+		}
+	} else {
+		// add gas usage as CheckTxFees consumes gas
+		ctx.GasMeter().ConsumeGas(104000, "simulate: CheckTxFees")
 	}
 
-	minGasPricesDecCoins := sdk.NewDecCoinsFromCoins(minGasPrices...)
-	newCtx := ctx.WithPriority(getTxPriority(fee, int64(gas))).WithMinGasPrices(minGasPricesDecCoins)
-	return next(newCtx, tx, simulate)
+	return next(ctx, tx, simulate)
 }
 
 // CheckTxFees implements the logic for the fee market to check if a Tx has provided sufficient
 // fees given the current state of the fee market. Returns an error if insufficient fees.
-func CheckTxFees(ctx sdk.Context, minFees sdk.Coins, feeTx sdk.FeeTx, isCheck bool) (feeCoins sdk.Coins, tip sdk.Coins, err error) {
-	minFeesDecCoins := sdk.NewDecCoinsFromCoins(minFees...)
-	feeCoins = feeTx.GetFee()
-
+func CheckTxFees(ctx sdk.Context, minFeesDecCoin sdk.DecCoin, feeTx sdk.FeeTx) error {
 	// Ensure that the provided fees meet the minimum
-	minGasPrices := minFeesDecCoins
-	if !minGasPrices.IsZero() {
-		requiredFees := make(sdk.Coins, len(minGasPrices))
-		consumedFees := make(sdk.Coins, len(minGasPrices))
+	minGasPrice := minFeesDecCoin
+	if !minGasPrice.IsZero() {
 
-		// Determine the required fees by multiplying each required minimum gas
-		// price by the gas, where fee = ceil(minGasPrice * gas).
-		gasConsumed := int64(ctx.GasMeter().GasConsumed())
-		gcDec := sdkmath.LegacyNewDec(gasConsumed)
 		glDec := sdkmath.LegacyNewDec(int64(feeTx.GetGas()))
 
-		for i, gp := range minGasPrices {
-			consumedFee := gp.Amount.Mul(gcDec)
-			limitFee := gp.Amount.Mul(glDec)
-			consumedFees[i] = sdk.NewCoin(gp.Denom, consumedFee.Ceil().RoundInt())
-			requiredFees[i] = sdk.NewCoin(gp.Denom, limitFee.Ceil().RoundInt())
-		}
+		limitFee := minGasPrice.Amount.Mul(glDec)
+		requiredFees := sdk.NewCoin(minGasPrice.Denom, limitFee.Ceil().RoundInt())
 
-		if !feeCoins.IsAnyGTE(requiredFees) {
-			return nil, nil, sdkerrors.ErrInsufficientFee.Wrapf(
-				"got: %s required: %s, minGasPrices: %s, gas: %d",
+		feeCoins := feeTx.GetFee()
+
+		if !feeCoins.IsAnyGTE(sdk.NewCoins(requiredFees)) {
+			return sdkerrors.ErrInsufficientFee.Wrapf(
+				"got: %s required: %s, minGasPrices: %s",
 				feeCoins,
 				requiredFees,
-				minGasPrices,
-				gasConsumed,
+				minGasPrice,
 			)
-		}
-
-		if isCheck {
-			//  set fee coins to be required amount if checking
-			feeCoins = requiredFees
-		} else {
-			// tip is the difference between feeCoins and the required fees
-			tip = feeCoins.Sub(requiredFees...)
-			// set fee coins to be ONLY the consumed amount if we are calculated consumed fee to deduct
-			feeCoins = consumedFees
 		}
 	}
 
-	return feeCoins, tip, nil
+	return nil
 }
 
 // getTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
 // provided in a transaction.
 // NOTE: This implementation should be used with a great consideration as it opens potential attack vectors
 // where txs with multiple coins could not be prioritized as expected.
-func getTxPriority(fee sdk.Coins, gas int64) int64 {
+func getTxPriority(fee sdk.Coin, gas int64) int64 {
 	var priority int64
-	for _, c := range fee {
-		p := int64(math.MaxInt64)
-		gasPrice := c.Amount.QuoRaw(gas)
-		if gasPrice.IsInt64() {
-			p = gasPrice.Int64()
-		}
-		if priority == 0 || p < priority {
-			priority = p
-		}
+
+	p := int64(math.MaxInt64)
+	gasPrice := fee.Amount.QuoRaw(gas)
+	if gasPrice.IsInt64() {
+		p = gasPrice.Int64()
+	}
+	if priority == 0 || p < priority {
+		priority = p
 	}
 
 	return priority

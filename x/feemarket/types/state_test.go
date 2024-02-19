@@ -10,7 +10,7 @@ import (
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
-var OneHundred = math.LegacyNewDecFromInt(math.NewInt(100))
+var OneHundred = math.LegacyNewDec(100)
 
 func TestState_Update(t *testing.T) {
 	t.Run("can add to window", func(t *testing.T) {
@@ -125,64 +125,72 @@ func TestState_UpdateBaseFee(t *testing.T) {
 	t.Run("empty block with default eip-1559", func(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.BaseFee = math.NewInt(1000)
-		params.MinBaseFee = math.NewInt(125)
+		fdp.BaseFee = math.LegacyNewDec(1000)
+		fdp.MinBaseFee = math.LegacyNewDec(125)
 
-		newBaseFee := state.UpdateBaseFee(params)
-		expectedBaseFee := math.NewInt(875)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := math.LegacyNewDec(875)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("target block with default eip-1559", func(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.BaseFee = math.NewInt(1000)
-		params.MinBaseFee = math.NewInt(125)
+		fdp.BaseFee = math.LegacyNewDec(1000)
+		fdp.MinBaseFee = math.LegacyNewDec(125)
 
 		state.Window[0] = params.TargetBlockUtilization
 
-		newBaseFee := state.UpdateBaseFee(params)
-		expectedBaseFee := math.NewInt(1000)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := math.LegacyNewDec(1000)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("full block with default eip-1559", func(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.BaseFee = math.NewInt(1000)
-		params.MinBaseFee = math.NewInt(125)
+		fdp.BaseFee = math.LegacyNewDec(1000)
+		fdp.MinBaseFee = math.LegacyNewDec(125)
 
 		state.Window[0] = params.MaxBlockUtilization
 
-		newBaseFee := state.UpdateBaseFee(params)
-		expectedBaseFee := math.NewInt(1125)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := math.LegacyNewDec(1125)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("empty block with default aimd eip-1559", func(t *testing.T) {
 		state := types.DefaultAIMDState()
 		params := types.DefaultAIMDParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.BaseFee = math.NewInt(1000)
-		params.MinBaseFee = math.NewInt(125)
+		fdp.BaseFee = math.LegacyNewDec(1000)
+		fdp.MinBaseFee = math.LegacyNewDec(125)
 		state.LearningRate = math.LegacyMustNewDecFromStr("0.125")
 
 		state.UpdateLearningRate(params)
-		newBaseFee := state.UpdateBaseFee(params)
-
-		expectedBaseFee := math.NewInt(850)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := math.LegacyNewDec(850)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("target block with default aimd eip-1559", func(t *testing.T) {
 		state := types.DefaultAIMDState()
 		params := types.DefaultAIMDParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.BaseFee = math.NewInt(1000)
-		params.MinBaseFee = math.NewInt(125)
+		fdp.BaseFee = math.LegacyNewDec(1000)
+		fdp.MinBaseFee = math.LegacyNewDec(125)
 		state.LearningRate = math.LegacyMustNewDecFromStr("0.125")
 
 		for i := 0; i < len(state.Window); i++ {
@@ -190,18 +198,19 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		}
 
 		state.UpdateLearningRate(params)
-		newBaseFee := state.UpdateBaseFee(params)
-
-		expectedBaseFee := math.NewInt(1000)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := math.LegacyNewDec(1000)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("full blocks with default aimd eip-1559", func(t *testing.T) {
 		state := types.DefaultAIMDState()
 		params := types.DefaultAIMDParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
-		state.BaseFee = math.NewInt(1000)
-		params.MinBaseFee = math.NewInt(125)
+		fdp.BaseFee = math.LegacyNewDec(1000)
+		fdp.MinBaseFee = math.LegacyNewDec(125)
 		state.LearningRate = math.LegacyMustNewDecFromStr("0.125")
 
 		for i := 0; i < len(state.Window); i++ {
@@ -209,190 +218,42 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		}
 
 		state.UpdateLearningRate(params)
-		newBaseFee := state.UpdateBaseFee(params)
-
-		expectedBaseFee := math.NewInt(1150)
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := math.LegacyNewDec(1150)
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("never goes below min base fee with default eip1599", func(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
+		fdp := types.DefaultFeeDenomParam()[0]
 
 		// Empty block
-		newBaseFee := state.UpdateBaseFee(params)
-		expectedBaseFee := params.MinBaseFee
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := fdp.MinBaseFee
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
 	})
 
 	t.Run("never goes below min base fee with default aimd eip1599", func(t *testing.T) {
 		state := types.DefaultAIMDState()
 		params := types.DefaultAIMDParams()
+		fdp := types.DefaultAIMDFeeDenomParam()[0]
 
 		// Empty blocks
-		newBaseFee := state.UpdateBaseFee(params)
-		expectedBaseFee := params.MinBaseFee
+		learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+		newBaseFee := fdp.UpdateBaseFee(params, state, learningRateAdjustment)
+		expectedBaseFee := fdp.MinBaseFee
 		require.True(t, expectedBaseFee.Equal(newBaseFee))
-	})
-
-	t.Run("empty blocks with aimd eip1559 with a delta", func(t *testing.T) {
-		// Instantiate the params with a delta.
-		params := types.DefaultAIMDParams()
-
-		paramsWithDelta := types.DefaultAIMDParams()
-		delta := math.LegacyNewDec(10)
-		paramsWithDelta.Delta = delta
-
-		// Empty blocks
-		state := types.DefaultAIMDState()
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		lr := state.UpdateLearningRate(params)
-		bf := state.UpdateBaseFee(params)
-
-		state = types.DefaultAIMDState()
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		lrWithDelta := state.UpdateLearningRate(paramsWithDelta)
-		bfWithDelta := state.UpdateBaseFee(paramsWithDelta)
-
-		// Ensure that the learning rate is the same.
-		require.Equal(t, lr, lrWithDelta)
-
-		// Ensure that the base fee is less with the delta.
-		require.True(t, bfWithDelta.LT(bf))
-	})
-
-	t.Run("full blocks with aimd eip1559 with a delta", func(t *testing.T) {
-		// Instantiate the params with a delta.
-		params := types.DefaultAIMDParams()
-
-		paramsWithDelta := types.DefaultAIMDParams()
-		delta := math.LegacyNewDec(10)
-		paramsWithDelta.Delta = delta
-
-		// Empty blocks
-		state := types.DefaultAIMDState()
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		for i := 0; i < len(state.Window); i++ {
-			state.Window[i] = params.MaxBlockUtilization
-		}
-
-		lr := state.UpdateLearningRate(params)
-		bf := state.UpdateBaseFee(params)
-
-		state = types.DefaultAIMDState()
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		for i := 0; i < len(state.Window); i++ {
-			state.Window[i] = params.MaxBlockUtilization
-		}
-
-		lrWithDelta := state.UpdateLearningRate(paramsWithDelta)
-		bfWithDelta := state.UpdateBaseFee(paramsWithDelta)
-
-		// Ensure that the learning rate is the same.
-		require.Equal(t, lr, lrWithDelta)
-
-		// Ensure that the base fee is greater with the delta.
-		require.True(t, bfWithDelta.GT(bf))
-	})
-
-	t.Run("target blocks with aimd eip1559 with a delta", func(t *testing.T) {
-		// Instantiate the params with a delta.
-		params := types.DefaultAIMDParams()
-
-		paramsWithDelta := types.DefaultAIMDParams()
-		delta := math.LegacyNewDec(10)
-		paramsWithDelta.Delta = delta
-
-		// Empty blocks
-		state := types.DefaultAIMDState()
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		for i := 0; i < len(state.Window); i++ {
-			state.Window[i] = params.TargetBlockUtilization
-		}
-
-		lr := state.UpdateLearningRate(params)
-		bf := state.UpdateBaseFee(params)
-
-		state = types.DefaultAIMDState()
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		for i := 0; i < len(state.Window); i++ {
-			state.Window[i] = params.TargetBlockUtilization
-		}
-
-		lrWithDelta := state.UpdateLearningRate(paramsWithDelta)
-		bfWithDelta := state.UpdateBaseFee(paramsWithDelta)
-
-		// Ensure that the learning rate is the same.
-		require.Equal(t, lr, lrWithDelta)
-
-		// Ensure that the base fee's are equal.
-		require.Equal(t, bf, bfWithDelta)
-	})
-
-	t.Run("half target block size with aimd eip1559 with a delta", func(t *testing.T) {
-		state := types.DefaultAIMDState()
-		state.Window = make([]uint64, 1)
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		prevBF := state.BaseFee
-
-		// Instantiate the params with a delta.
-		params := types.DefaultAIMDParams()
-		params.Window = 1
-		params.Delta = math.LegacyNewDec(10)
-
-		// 1/4th of the window is full.
-		state.Window[0] = params.TargetBlockUtilization / 2
-
-		prevLR := state.LearningRate
-		lr := state.UpdateLearningRate(params)
-		bf := state.UpdateBaseFee(params)
-
-		expectedUtilization := math.LegacyMustNewDecFromStr("-0.5")
-		expectedLR := prevLR.Add(params.Alpha)
-		expectedLRAdjustment := (expectedLR.Mul(expectedUtilization)).Add(math.LegacyOneDec())
-
-		expectedNetUtilization := math.LegacyNewDec(-1 * int64(params.TargetBlockUtilization) / 2)
-		deltaDiff := expectedNetUtilization.Mul(params.Delta)
-		expectedFee := (math.LegacyNewDecFromInt(prevBF).Mul(expectedLRAdjustment)).Add(deltaDiff).TruncateInt()
-
-		require.Equal(t, expectedLR, lr)
-		require.Equal(t, expectedFee, bf)
-	})
-
-	t.Run("3/4 max block size with aimd eip1559 with a delta", func(t *testing.T) {
-		state := types.DefaultAIMDState()
-		state.Window = make([]uint64, 1)
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
-		prevBF := state.BaseFee
-
-		// Instantiate the params with a delta.
-		params := types.DefaultAIMDParams()
-		params.Window = 1
-		params.Delta = math.LegacyNewDec(10)
-
-		// 1/4th of the window is full.
-		state.Window[0] = params.MaxBlockUtilization / 4 * 3
-
-		prevLR := state.LearningRate
-		lr := state.UpdateLearningRate(params)
-		bf := state.UpdateBaseFee(params)
-
-		expectedUtilization := math.LegacyMustNewDecFromStr("0.5")
-		expectedLR := prevLR.Add(params.Alpha)
-		expectedLRAdjustment := (expectedLR.Mul(expectedUtilization)).Add(math.LegacyOneDec())
-
-		expectedNetUtilization := math.LegacyNewDec(int64(params.MaxBlockUtilization) / 4)
-		deltaDiff := expectedNetUtilization.Mul(params.Delta)
-		expectedFee := (math.LegacyNewDecFromInt(prevBF).Mul(expectedLRAdjustment)).Add(deltaDiff).TruncateInt()
-
-		require.Equal(t, expectedLR, lr)
-		require.Equal(t, expectedFee, bf)
 	})
 
 	t.Run("recovers from overflow with large max block utilization ratio", func(t *testing.T) {
 		state := types.DefaultAIMDState()
+		fdp := types.DefaultAIMDFeeDenomParam()[0]
+
 		state.Window = make([]uint64, 50)
-		state.BaseFee = state.BaseFee.Mul(math.NewInt(10))
+		fdp.BaseFee = fdp.BaseFee.Mul(math.LegacyNewDec(10))
 
 		params := types.DefaultAIMDParams()
 		params.Window = 50
@@ -401,15 +262,16 @@ func TestState_UpdateBaseFee(t *testing.T) {
 		params.MaxBlockUtilization = 9_999_999_999_999_999_999
 
 		for {
-			var baseFee math.Int
+			var baseFee math.LegacyDec
 			require.NotPanics(t, func() {
 				state.Update(params.MaxBlockUtilization, params)
 				state.UpdateLearningRate(params)
-				baseFee = state.UpdateBaseFee(params)
+				learningRateAdjustment := types.GetLearningRateAdjustment(params, state)
+				baseFee = fdp.UpdateBaseFee(params, state, learningRateAdjustment)
 			})
 
 			// An overflow should have occurred.
-			if baseFee.Equal(params.MinBaseFee) {
+			if baseFee.Equal(fdp.MinBaseFee) {
 				return
 			}
 
@@ -859,18 +721,9 @@ func TestState_ValidateBasic(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name: "invalid negative base fee",
-			state: types.State{
-				Window:  make([]uint64, 1),
-				BaseFee: math.NewInt(-1),
-			},
-			expectErr: true,
-		},
-		{
 			name: "invalid learning rate",
 			state: types.State{
 				Window:       make([]uint64, 1),
-				BaseFee:      math.NewInt(1),
 				LearningRate: math.LegacyMustNewDecFromStr("-1.0"),
 			},
 			expectErr: true,
@@ -879,25 +732,14 @@ func TestState_ValidateBasic(t *testing.T) {
 			name: "valid other state",
 			state: types.State{
 				Window:       make([]uint64, 1),
-				BaseFee:      math.NewInt(1),
 				LearningRate: math.LegacyMustNewDecFromStr("0.5"),
 			},
 			expectErr: false,
 		},
 		{
-			name: "invalid zero base fee",
-			state: types.State{
-				Window:       make([]uint64, 1),
-				BaseFee:      math.ZeroInt(),
-				LearningRate: math.LegacyMustNewDecFromStr("0.5"),
-			},
-			expectErr: true,
-		},
-		{
 			name: "invalid zero learning rate",
 			state: types.State{
 				Window:       make([]uint64, 1),
-				BaseFee:      math.NewInt(1),
 				LearningRate: math.LegacyZeroDec(),
 			},
 			expectErr: true,

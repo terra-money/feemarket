@@ -24,6 +24,13 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) {
 	if err := k.SetState(ctx, gs.State); err != nil {
 		panic(err)
 	}
+
+	for _, fdp := range gs.FeeDenomParams {
+		if err := k.SetFeeDenomParam(ctx, fdp); err != nil {
+			panic(err)
+		}
+	}
+
 }
 
 // ExportGenesis returns a GenesisState for a given context.
@@ -35,10 +42,13 @@ func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	}
 
 	// Get the feemarket module's state.
-	state, err := k.GetState(ctx)
+	state := k.GetState(ctx)
+
+	// Get the feemarket module's fee denom parameters.
+	fdps, err := k.GetFeeDenomParams(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	return types.NewGenesisState(params, state)
+	return types.NewGenesisState(params, state, fdps)
 }

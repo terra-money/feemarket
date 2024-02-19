@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
@@ -52,8 +53,91 @@ func (k *Keeper) GetAuthority() string {
 	return k.authority
 }
 
+// GetFeeDenomParam returns the feeDenomParam for feeDenom.
+func (k *Keeper) GetFeeDenomParam(ctx sdk.Context, feeDenom string) (*types.FeeDenomParam, error) {
+	store := ctx.KVStore(k.storeKey)
+
+	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
+	bz := store.Get(key)
+
+	fdp := &types.FeeDenomParam{}
+	if bz == nil {
+		return fdp, sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
+	}
+
+	if err := fdp.Unmarshal(bz); err != nil {
+		return nil, err
+	}
+
+	return fdp, nil
+}
+
+// GetFeeDenomParamIter returns an iterator for all fee denom feeDenomParam.
+func (k *Keeper) GetFeeDenomParamIter(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
+
+	return sdk.KVStorePrefixIterator(store, types.KeyPrefixFeeDenomParam)
+}
+
+// GetFeeDenomParams returns all feemarket feeDenomParams.
+func (k *Keeper) GetFeeDenomParams(ctx sdk.Context) ([]types.FeeDenomParam, error) {
+	iter := k.GetFeeDenomParamIter(ctx)
+	defer iter.Close()
+
+	var fdps []types.FeeDenomParam
+
+	for ; iter.Valid(); iter.Next() {
+		fdp := types.FeeDenomParam{}
+		if err := fdp.Unmarshal(iter.Value()); err != nil {
+			return nil, err
+		}
+
+		fdps = append(fdps, fdp)
+	}
+
+	return fdps, nil
+}
+
+// SetFeeDenomParam sets the feeDenomParam for feeDenom.
+func (k *Keeper) SetFeeDenomParam(ctx sdk.Context, fdp types.FeeDenomParam) error {
+	store := ctx.KVStore(k.storeKey)
+
+	key := types.GetKeyPrefixFeeDenomParam(fdp.FeeDenom)
+	bz, err := fdp.Marshal()
+	if err != nil {
+		return err
+	}
+
+	store.Set(key, bz)
+
+	return nil
+}
+
+// DeleteFeeDenomParam removes the feeDenomParam for feeDenom.
+func (k *Keeper) DeleteFeeDenomParam(ctx sdk.Context, feeDenom string) error {
+	params, err := k.GetParams(ctx)
+	if err != nil {
+		return err
+	}
+	if params.DefaultFeeDenom == feeDenom {
+		return sdkerrors.ErrInvalidRequest.Wrapf("cannot delete default fee denom: %s", feeDenom)
+	}
+	store := ctx.KVStore(k.storeKey)
+
+	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
+
+	bz := store.Get(key)
+	if bz == nil {
+		return sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
+	}
+
+	store.Delete(key)
+
+	return nil
+}
+
 // GetState returns the feemarket module's state.
-func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
+func (k *Keeper) GetState(ctx sdk.Context) types.State {
 	store := ctx.KVStore(k.storeKey)
 
 	key := types.KeyState
@@ -61,10 +145,10 @@ func (k *Keeper) GetState(ctx sdk.Context) (types.State, error) {
 
 	state := types.State{}
 	if err := state.Unmarshal(bz); err != nil {
-		return types.State{}, err
+		panic(err)
 	}
 
-	return state, nil
+	return state
 }
 
 // SetState sets the feemarket module's state.

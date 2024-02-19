@@ -39,8 +39,7 @@ func (s *IntegrationTestSuite) TestState() {
 		err := s.TestKeepers.FeeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+		gotState := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
 
 		s.Require().EqualValues(state, gotState)
 	})
@@ -51,8 +50,7 @@ func (s *IntegrationTestSuite) TestState() {
 		err := s.TestKeepers.FeeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+		gotState := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
 
 		s.Require().Equal(state, gotState)
 	})
@@ -76,8 +74,6 @@ func (s *IntegrationTestSuite) TestParams() {
 			Alpha:                  math.LegacyMustNewDecFromStr("0.1"),
 			Beta:                   math.LegacyMustNewDecFromStr("0.1"),
 			Theta:                  math.LegacyMustNewDecFromStr("0.1"),
-			Delta:                  math.LegacyMustNewDecFromStr("0.1"),
-			MinBaseFee:             math.NewInt(10),
 			MinLearningRate:        math.LegacyMustNewDecFromStr("0.1"),
 			MaxLearningRate:        math.LegacyMustNewDecFromStr("0.1"),
 			TargetBlockUtilization: 5,

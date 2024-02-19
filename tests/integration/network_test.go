@@ -94,10 +94,96 @@ func (s *NetworkTestSuite) TestGetState() {
 				require.ErrorIs(t, stat.Err(), tc.err)
 			} else {
 				require.NoError(t, err)
-				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.State))
-				require.NotNil(t, resp.State)
-				require.Equal(t, tc.obj, resp.State)
+				var state types.State
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &state))
+				require.NotNil(t, state)
+				require.Equal(t, tc.obj, state)
+			}
+		})
+	}
+}
+
+func (s *NetworkTestSuite) TestGetFeeDenomParams() {
+	s.T().Parallel()
+
+	ctx := s.Network.Validators[0].ClientCtx
+
+	common := []string{
+		"",
+		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+	}
+	for _, tc := range []struct {
+		name string
+
+		args []string
+		err  error
+		obj  types.FeeDenomParamResponse
+	}{
+		{
+			name: "should return default feeDenomParams",
+			args: common,
+			obj: types.FeeDenomParamResponse{
+				FeeDenomParams: types.DefaultFeeDenomParam(),
+			},
+		},
+	} {
+		s.T().Run(tc.name, func(t *testing.T) {
+			tc := tc
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.GetFeeDenomParamCmd(), tc.args)
+			if tc.err != nil {
+				stat, ok := status.FromError(tc.err)
+				require.True(t, ok)
+				require.ErrorIs(t, stat.Err(), tc.err)
+			} else {
+				require.NoError(t, err)
+				var resp types.FeeDenomParamResponse
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+				require.NotNil(t, resp)
+				require.Equal(t, tc.obj, resp)
+			}
+		})
+	}
+}
+
+func (s *NetworkTestSuite) TestGetFeeDenomParam() {
+	s.T().Parallel()
+
+	ctx := s.Network.Validators[0].ClientCtx
+
+	common := []string{
+		types.TestFeeDenom,
+		fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+	}
+	for _, tc := range []struct {
+		name string
+
+		args []string
+		err  error
+		obj  types.FeeDenomParamResponse
+	}{
+		{
+			name: "should return test fee token feeDenomParam",
+			args: common,
+			obj: types.FeeDenomParamResponse{
+				FeeDenomParams: []types.FeeDenomParam{
+					types.DefaultFeeDenomParam()[0],
+				},
+			},
+		},
+	} {
+		s.T().Run(tc.name, func(t *testing.T) {
+			tc := tc
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.GetFeeDenomParamCmd(), tc.args)
+			if tc.err != nil {
+				stat, ok := status.FromError(tc.err)
+				require.True(t, ok)
+				require.ErrorIs(t, stat.Err(), tc.err)
+			} else {
+				require.NoError(t, err)
+				var resp types.FeeDenomParamResponse
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+				require.NotNil(t, resp)
+				require.Equal(t, tc.obj, resp)
 			}
 		})
 	}
@@ -135,10 +221,10 @@ func (s *NetworkTestSuite) TestSpamTx() {
 				require.ErrorIs(t, stat.Err(), tc.err)
 			} else {
 				require.NoError(t, err)
-				var resp types.StateResponse
-				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp.State))
-				require.NotNil(t, resp.State)
-				require.Equal(t, tc.obj, resp.State)
+				var state types.State
+				require.NoError(t, s.Network.Config.Codec.UnmarshalJSON(out.Bytes(), &state))
+				require.NotNil(t, state)
+				require.Equal(t, tc.obj, state)
 			}
 		})
 	}

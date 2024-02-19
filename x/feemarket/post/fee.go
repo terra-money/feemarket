@@ -53,8 +53,6 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		return ctx, errorsmod.Wrap(sdkerrors.ErrInvalidGasLimit, "must provide positive gas")
 	}
 
-	var tip sdk.Coins
-
 	// update fee market params
 	params, err := dfd.feemarketKeeper.GetParams(ctx)
 	if err != nil {
@@ -66,38 +64,46 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		return next(ctx, tx, simulate, success)
 	}
 
+	if !simulate && ctx.BlockHeight() > 0 && feeTx.GetFee().Len() != 1 {
+		return ctx, sdkerrors.ErrInsufficientFee.Wrapf("invalid fee provided")
+	}
+
+	feeDenom := params.DefaultFeeDenom
+	if feeTx.GetFee().Len() == 1 {
+		feeDenom = feeTx.GetFee().GetDenomByIndex(0)
+	}
+
 	// update fee market state
-	state, err := dfd.feemarketKeeper.GetState(ctx)
+	fdp, err := dfd.feemarketKeeper.GetFeeDenomParam(ctx, feeDenom)
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market state")
 	}
 
-	baseFee := sdk.NewCoin(params.FeeDenom, state.BaseFee)
-	minGasPrices := sdk.NewCoins(baseFee)
+	minGasPrice := sdk.NewDecCoinFromDec(fdp.FeeDenom, fdp.BaseFee)
 
 	fee := feeTx.GetFee()
 	gas := ctx.GasMeter().GasConsumed() // use context gas consumed
 
 	ctx.Logger().Info("fee deduct post handle",
-		"min gas prices", minGasPrices,
+		"min gas prices", minGasPrice,
 		"gas consumed", gas,
 	)
 
 	if !simulate {
-		fee, tip, err = ante.CheckTxFees(ctx, minGasPrices, feeTx, false)
-		if err != nil {
+		if err := ante.CheckTxFees(ctx, minGasPrice, feeTx); err != nil {
 			return ctx, err
 		}
 	}
 
 	ctx.Logger().Info("fee deduct post handle",
 		"fee", fee,
-		"tip", tip,
 	)
 
-	if err := dfd.DeductFeeAndTip(ctx, tx, fee, tip); err != nil {
+	if err := dfd.DeductFee(ctx, tx, fee); err != nil {
 		return ctx, err
 	}
+
+	state := dfd.feemarketKeeper.GetState(ctx)
 
 	err = state.Update(gas, params)
 	if err != nil {
@@ -112,9 +118,9 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(ctx, tx, simulate, success)
 }
 
-// DeductFeeAndTip deducts the provided fee and tip from the fee payer.
+// DeductFee deducts the provided fee from the fee payer.
 // If the tx uses a feegranter, the fee granter address will pay the fee instead of the tx signer.
-func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.Tx, fee, tip sdk.Coins) error {
+func (dfd FeeMarketDeductDecorator) DeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee sdk.Coins) error {
 	feeTx, ok := sdkTx.(sdk.FeeTx)
 	if !ok {
 		return errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
@@ -150,7 +156,7 @@ func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.T
 
 	var events sdk.Events
 
-	// deduct the fees and tip
+	// deduct the fees
 	if !fee.IsZero() {
 		err := DeductCoins(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		if err != nil {
@@ -161,21 +167,6 @@ func (dfd FeeMarketDeductDecorator) DeductFeeAndTip(ctx sdk.Context, sdkTx sdk.T
 			feemarkettypes.EventTypeFeePay,
 			sdk.NewAttribute(sdk.AttributeKeyFee, fee.String()),
 			sdk.NewAttribute(sdk.AttributeKeyFeePayer, deductFeesFrom.String()),
-		))
-	}
-
-	proposer := sdk.AccAddress(ctx.BlockHeader().ProposerAddress)
-	if !tip.IsZero() {
-		err := SendTip(dfd.bankKeeper, ctx, deductFeesFromAcc.GetAddress(), proposer, tip)
-		if err != nil {
-			return err
-		}
-
-		events = append(events, sdk.NewEvent(
-			feemarkettypes.EventTypeTipPay,
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTip, tip.String()),
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayer, deductFeesFrom.String()),
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayee, proposer.String()),
 		))
 	}
 

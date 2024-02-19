@@ -13,45 +13,29 @@ import (
 	"github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
-func TestAnteHandle(t *testing.T) {
+func TestMultiFeeAnteHandle(t *testing.T) {
 	// Same data for every test case
 	gasLimit := antesuite.NewTestGasLimit()
 	validFeeAmount := types.DefaultMinBaseFee.MulInt64(int64(gasLimit)).TruncateInt()
-	validFee := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmount))
+	invalidFee := sdk.NewCoins(sdk.NewCoin(types.DefaultFeeDenom, validFeeAmount), sdk.NewCoin(types.TestFeeDenom, validFeeAmount))
 
 	testCases := []antesuite.TestCase{
 		{
-			Name: "0 gas given should fail",
+			Name: "signer supplies multiple fee tokens should fail",
 			Malleate: func(suite *antesuite.TestSuite) antesuite.TestCaseArgs {
 				accs := suite.CreateTestAccounts(1)
 
 				return antesuite.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].Account.GetAddress())},
-					GasLimit:  0,
-					FeeAmount: validFee,
+					GasLimit:  gasLimit,
+					FeeAmount: invalidFee,
 				}
 			},
 			RunAnte:  true,
 			RunPost:  false,
 			Simulate: false,
 			ExpPass:  false,
-			ExpErr:   sdkerrors.ErrInvalidGasLimit,
-		},
-		{
-			Name: "signer has enough funds, should pass",
-			Malleate: func(suite *antesuite.TestSuite) antesuite.TestCaseArgs {
-				accs := suite.CreateTestAccounts(1)
-				return antesuite.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].Account.GetAddress())},
-					GasLimit:  gasLimit,
-					FeeAmount: validFee,
-				}
-			},
-			RunAnte:  true,
-			RunPost:  false,
-			Simulate: false,
-			ExpPass:  true,
-			ExpErr:   nil,
+			ExpErr:   sdkerrors.ErrInsufficientFee,
 		},
 	}
 

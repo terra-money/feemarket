@@ -10,10 +10,12 @@ import (
 func NewGenesisState(
 	params Params,
 	state State,
+	feeDenomParams []FeeDenomParam,
 ) *GenesisState {
 	return &GenesisState{
-		Params: params,
-		State:  state,
+		Params:         params,
+		State:          state,
+		FeeDenomParams: feeDenomParams,
 	}
 }
 
@@ -23,7 +25,15 @@ func (gs *GenesisState) ValidateBasic() error {
 	if err := gs.Params.ValidateBasic(); err != nil {
 		return err
 	}
-	return gs.State.ValidateBasic()
+	if err := gs.State.ValidateBasic(); err != nil {
+		return err
+	}
+	for _, fdp := range gs.FeeDenomParams {
+		if err := fdp.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetGenesisStateFromAppState returns x/feemarket GenesisState given raw application

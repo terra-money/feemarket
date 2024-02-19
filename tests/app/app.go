@@ -21,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -66,6 +65,7 @@ import (
 
 	feemarketmodule "github.com/skip-mev/feemarket/x/feemarket"
 	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 )
 
 const (
@@ -73,7 +73,7 @@ const (
 )
 
 var (
-	BondDenom = sdk.DefaultBondDenom
+	BondDenom = feemarkettypes.DefaultFeeDenom
 
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
