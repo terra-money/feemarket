@@ -32,8 +32,8 @@ func (q QueryServer) Params(goCtx context.Context, _ *types.ParamsRequest) (*typ
 func (q QueryServer) State(goCtx context.Context, query *types.StateRequest) (*types.StateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	state, err := q.k.GetState(ctx)
-	return &types.StateResponse{State: state}, err
+	state := q.k.GetState(ctx)
+	return &types.StateResponse{State: state}, nil
 }
 
 // State defines a method that returns the current feemarket states. If feeDenom is nil, return all states
@@ -46,5 +46,5 @@ func (q QueryServer) FeeDenomParam(goCtx context.Context, query *types.FeeDenomP
 	}
 
 	fdp, err := q.k.GetFeeDenomParam(ctx, query.FeeDenom)
-	return &types.FeeDenomParamResponse{FeeDenomParams: []types.FeeDenomParam{fdp}}, err
+	return &types.FeeDenomParamResponse{FeeDenomParams: []types.FeeDenomParam{*fdp}}, err
 }

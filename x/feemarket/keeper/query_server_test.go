@@ -59,10 +59,9 @@ func (s *KeeperTestSuite) TestStateRequest() {
 
 		s.Require().Equal(types.DefaultState(), resp.State)
 
-		params, err := s.feeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+		state := s.feeMarketKeeper.GetState(s.ctx)
 
-		s.Require().Equal(resp.State, params)
+		s.Require().Equal(resp.State, state)
 	})
 
 	s.Run("can get updated params", func() {
@@ -81,8 +80,7 @@ func (s *KeeperTestSuite) TestStateRequest() {
 
 		s.Require().Equal(state, resp.State)
 
-		state, err = s.feeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+		state = s.feeMarketKeeper.GetState(s.ctx)
 
 		s.Require().Equal(resp.State, state)
 	})
@@ -106,12 +104,12 @@ func (s *KeeperTestSuite) TestFeeDenomParamRequest() {
 	})
 
 	s.Run("can get updated feeDenomParam", func() {
-		fdp := types.FeeDenomParam{
+		fdp := &types.FeeDenomParam{
 			MinBaseFee: math.LegacyOneDec(),
 			BaseFee:    math.LegacyOneDec(),
 			FeeDenom:   types.DefaultFeeDenom,
 		}
-		err := s.feeMarketKeeper.SetFeeDenomParam(s.ctx, fdp)
+		err := s.feeMarketKeeper.SetFeeDenomParam(s.ctx, *fdp)
 		s.Require().NoError(err)
 
 		req := &types.FeeDenomParamRequest{

@@ -91,12 +91,12 @@ func DefaultAIMDState() State {
 // implementation without the AIMD learning rate adjustment algorithm.
 func DefaultAIMDFeeDenomParam() []FeeDenomParam {
 	return []FeeDenomParam{
-		NewFeeDenomParam(
+		*NewFeeDenomParam(
 			TestFeeDenom,
 			DefaultAIMDMinBaseFee,
 			DefaultAIMDMinBaseFee,
 		),
-		NewFeeDenomParam(
+		*NewFeeDenomParam(
 			DefaultFeeDenom,
 			math.LegacyMustNewDecFromStr("0.0015"),
 			math.LegacyMustNewDecFromStr("0.0015"),

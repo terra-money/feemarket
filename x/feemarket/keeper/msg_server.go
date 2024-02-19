@@ -35,10 +35,7 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 	if err := ms.k.SetParams(ctx, params); err != nil {
 		return nil, fmt.Errorf("error setting params: %w", err)
 	}
-	state, err := ms.k.GetState(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error getting state: %w", err)
-	}
+	state := ms.k.GetState(ctx)
 
 	if int(params.Window) != len(state.Window) {
 		window := make([]uint64, params.Window)
@@ -86,7 +83,7 @@ func (ms MsgServer) FeeDenomParam(goCtx context.Context, msg *types.MsgFeeDenomP
 		fdp.BaseFee = msg.MinBaseFee
 	}
 
-	if err := ms.k.SetFeeDenomParam(ctx, fdp); err != nil {
+	if err := ms.k.SetFeeDenomParam(ctx, *fdp); err != nil {
 		return nil, err
 	}
 

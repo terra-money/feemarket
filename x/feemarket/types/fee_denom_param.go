@@ -11,8 +11,8 @@ func NewFeeDenomParam(
 	feeDenom string,
 	minBaseFee,
 	baseFee math.LegacyDec,
-) FeeDenomParam {
-	return FeeDenomParam{
+) *FeeDenomParam {
+	return &FeeDenomParam{
 		FeeDenom:   feeDenom,
 		MinBaseFee: minBaseFee,
 		BaseFee:    baseFee,
