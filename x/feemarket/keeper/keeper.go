@@ -54,7 +54,7 @@ func (k *Keeper) GetAuthority() string {
 }
 
 // GetFeeDenomParam returns the feeDenomParam for feeDenom.
-func (k *Keeper) GetFeeDenomParam(ctx sdk.Context, feeDenom string) (types.FeeDenomParam, error) {
+func (k *Keeper) GetFeeDenomParam(ctx sdk.Context, feeDenom string) (*types.FeeDenomParam, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
@@ -62,14 +62,14 @@ func (k *Keeper) GetFeeDenomParam(ctx sdk.Context, feeDenom string) (types.FeeDe
 
 	fdp := types.FeeDenomParam{}
 	if bz == nil {
-		return fdp, sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
+		return &fdp, sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
 	}
 
 	if err := fdp.Unmarshal(bz); err != nil {
-		return fdp, err
+		return nil, err
 	}
 
-	return fdp, nil
+	return &fdp, nil
 }
 
 // GetFeeDenomParamIter returns an iterator for all fee denom feeDenomParam.
