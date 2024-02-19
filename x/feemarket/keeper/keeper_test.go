@@ -59,7 +59,7 @@ func (s *KeeperTestSuite) TestFeeDenomParam() {
 		gotFdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, fdp.FeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().EqualValues(fdp, gotFdp)
+		s.Require().EqualValues(fdp, *gotFdp)
 	})
 
 	s.Run("set and get aimd eip1559 feeDenomParam", func() {
@@ -71,7 +71,7 @@ func (s *KeeperTestSuite) TestFeeDenomParam() {
 		gotFdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, fdp.FeeDenom)
 		s.Require().NoError(err)
 
-		s.Require().Equal(fdp, gotFdp)
+		s.Require().Equal(fdp, *gotFdp)
 	})
 }
 

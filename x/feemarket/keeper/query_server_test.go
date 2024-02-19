@@ -119,11 +119,10 @@ func (s *KeeperTestSuite) TestFeeDenomParamRequest() {
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		s.Require().Equal(fdp, resp.FeeDenomParams[0])
+		s.Require().Equal(*fdp, resp.FeeDenomParams[0])
 
 		fdp, err = s.feeMarketKeeper.GetFeeDenomParam(s.ctx, types.DefaultFeeDenom)
 		s.Require().NoError(err)
-
-		s.Require().Equal(resp.FeeDenomParams[0], fdp)
+		s.Require().Equal(resp.FeeDenomParams[0], *fdp)
 	})
 }

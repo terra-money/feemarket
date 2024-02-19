@@ -42,12 +42,12 @@ func (_m *FeeMarketKeeper) GetMinGasPrice(ctx types.Context, feeDenom string) (t
 }
 
 // GetState provides a mock function with given fields: ctx
-func (_m *FeeMarketKeeper) GetState(ctx types.Context) (feemarkettypes.State, error) {
+func (_m *FeeMarketKeeper) GetState(ctx types.Context) feemarkettypes.State {
 	ret := _m.Called(ctx)
 
 	var r0 feemarkettypes.State
-	var r1 error
-	if rf, ok := ret.Get(0).(func(types.Context) (feemarkettypes.State, error)); ok {
+	
+	if rf, ok := ret.Get(0).(func(types.Context) feemarkettypes.State); ok {
 		return rf(ctx)
 	}
 	if rf, ok := ret.Get(0).(func(types.Context) feemarkettypes.State); ok {
@@ -56,13 +56,7 @@ func (_m *FeeMarketKeeper) GetState(ctx types.Context) (feemarkettypes.State, er
 		r0 = ret.Get(0).(feemarkettypes.State)
 	}
 
-	if rf, ok := ret.Get(1).(func(types.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // NewFeeMarketKeeper creates a new instance of FeeMarketKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

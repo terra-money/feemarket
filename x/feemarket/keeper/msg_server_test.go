@@ -88,7 +88,7 @@ func (s *KeeperTestSuite) TestMsgFeeDenomParam() {
 
 		fdp, err := s.feeMarketKeeper.GetFeeDenomParam(s.ctx, feeDenom)
 		s.Require().NoError(err)
-		s.Require().Equal(fdp, reqFdp)
+		s.Require().Equal(*fdp, reqFdp)
 	})
 }
 

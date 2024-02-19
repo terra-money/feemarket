@@ -166,7 +166,6 @@ func TestPostHandle(t *testing.T) {
 			Malleate: func(s *antesuite.TestSuite) antesuite.TestCaseArgs {
 				accs := s.CreateTestAccounts(1)
 				s.MockBankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, accs[0].Account.GetAddress(), types.FeeCollectorName, mock.Anything).Return(nil)
-				// s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 				return antesuite.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].Account.GetAddress())},
@@ -185,7 +184,6 @@ func TestPostHandle(t *testing.T) {
 			Malleate: func(s *antesuite.TestSuite) antesuite.TestCaseArgs {
 				accs := s.CreateTestAccounts(1)
 				s.MockBankKeeper.On("SendCoinsFromAccountToModule", mock.Anything, accs[0].Account.GetAddress(), types.FeeCollectorName, mock.Anything).Return(nil)
-				// s.MockBankKeeper.On("SendCoins", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
 
 				return antesuite.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].Account.GetAddress())},

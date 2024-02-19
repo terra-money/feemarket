@@ -39,8 +39,7 @@ func (s *IntegrationTestSuite) TestState() {
 		err := s.TestKeepers.FeeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+		gotState := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
 
 		s.Require().EqualValues(state, gotState)
 	})
@@ -51,8 +50,7 @@ func (s *IntegrationTestSuite) TestState() {
 		err := s.TestKeepers.FeeMarketKeeper.SetState(s.ctx, state)
 		s.Require().NoError(err)
 
-		gotState, err := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
-		s.Require().NoError(err)
+		gotState := s.TestKeepers.FeeMarketKeeper.GetState(s.ctx)
 
 		s.Require().Equal(state, gotState)
 	})

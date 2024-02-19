@@ -60,16 +60,16 @@ func (k *Keeper) GetFeeDenomParam(ctx sdk.Context, feeDenom string) (*types.FeeD
 	key := types.GetKeyPrefixFeeDenomParam(feeDenom)
 	bz := store.Get(key)
 
-	fdp := types.FeeDenomParam{}
+	fdp := &types.FeeDenomParam{}
 	if bz == nil {
-		return &fdp, sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
+		return fdp, sdkerrors.ErrKeyNotFound.Wrapf("feeDenomParam not found for feeDenom: %s", feeDenom)
 	}
 
 	if err := fdp.Unmarshal(bz); err != nil {
 		return nil, err
 	}
 
-	return &fdp, nil
+	return fdp, nil
 }
 
 // GetFeeDenomParamIter returns an iterator for all fee denom feeDenomParam.
