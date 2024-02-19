@@ -50,11 +50,6 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 		ms.k.SetState(ctx, state)
 	}
 
-	// newState := types.NewState(params.Window, params.MinBaseFee, params.MinLearningRate)
-	// if err := ms.k.SetState(ctx, newState); err != nil {
-	// 	return nil, fmt.Errorf("error setting state: %w", err)
-	// }
-
 	return &types.MsgParamsResponse{}, nil
 }
 
